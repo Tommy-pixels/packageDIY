@@ -8,3 +8,6 @@ def getCurOriPath():
 def delSpace(paragraph):
     # return paragraph.replace("\r", "").replace("\n", "").replace("\t", "").replace("\xa0", "").replace("\u3000","")
     return paragraph.strip()
+
+def finishTask():
+    print("流程结束，单次任务结束（爬取、处理、上传数据， 对应数据库数据的清空以及posturldatabase数据库的更新）")

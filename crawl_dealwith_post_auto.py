@@ -14,43 +14,48 @@ from . import run_auto_contentImgs as raci
 from . import run_auto_thumbnailImgs as rati
 from .articlesRef.DatabaserOperator import databaseOperator as dbOp
 from . import run_auto_video as rav
+
 # 1. 定时任务基类 (完成)
 class TimedTaskBasic():
     '''
         定时任务的类
             taskExcuteDelta     任务的执行间隔 比如 8点到9点间每隔几秒执行一次任务
             timeExcuteDelta=86400     定时器的执行间隔 比如 每个一周运行一次定时器 86400为一天
+            beginTime="09:00:00"
+            endTime="10:00:00"
+            taskExcuteDelta=30
+            timeExcuteDelta=86400
     '''
-    def __init__(self, setting, beginTime=8, endTime=9, taskExcuteDelta=3600, timeExcuteDelta=86400):
+    def __init__(self, setting):
         self.setting = setting  # 定时任务配置文件
-        self.beginTime = beginTime  # 定时任务每天的启动时间 例子早上8点 08:00:00
-        self.endTime = endTime  # 定时任务执行在几点之前 例子早上9点 09:00:00
-        self.taskExcuteDelta = taskExcuteDelta  # 定时任务间隔几秒执行一次
-        self.timExcuteDelta = timeExcuteDelta
+        self.beginTime = self.setting['beginTime']  # 定时任务每天的启动时间 例子早上8点 08:00:00
+        self.endTime = self.setting['endTime']  # 定时任务执行在几点之前 例子早上9点 09:00:00
+        self.taskExcuteDelta = self.setting['taskExcuteDelta']  # 定时任务间隔几秒执行一次
+        self.timeExcuteDelta = self.setting['timeExcuteDelta']
 
     #任务描述：每天早上8点，隔3600秒执行一次task任务
     def func1(self):
         '''早上8点开启任务'''
         self.func2()
         # 每隔一天（86400秒）执行一次func1
-        t = threading.Timer(self.timExcuteDelta,self.func1)
+        t = threading.Timer(self.timeExcuteDelta,self.func1)
         t.start()
 
     def func2(self):
         '''8点-9点，隔3600秒执行一次任务task'''
         self.task()
-        # 凌晨4点函数结束执行
+        # 10点函数结束执行
         now_time = datetime.datetime.now()
         today_9 = datetime.datetime.strptime(str(datetime.datetime.now().year)+'-'+str(datetime.datetime.now().month)+'-'+str(datetime.datetime.now().day) + ' ' + str(self.endTime) ,'%Y-%m-%d %H:%M:%S')
-        #因为定时任务会延后10秒钟执行，所以设置终止条件时，需要提前10秒钟
-        print(today_9)
-        print(now_time <= today_9-datetime.timedelta(seconds=10))
+        # 因为定时任务会延后10秒钟执行，所以设置终止条件时，需要提前10秒钟
         if(now_time <= today_9-datetime.timedelta(seconds=10)):
-            print("进入了定时判断")
+            print("当前时间 " + str(now_time) + " ,该时间在任务执行时段内，继续间隔 " + str(self.taskExcuteDelta)  + " 执行任务")
             t = threading.Timer(self.taskExcuteDelta, self.func2)
             t.start()
+        else:
+            print("当前时间 " + str(now_time) + " ,该时间不在任务执行时段内，等待 " + str(self.timeExcuteDelta) + " 后再重新开启执行任务定时器")
 
-    def task(self, setting):
+    def task(self):
         '''需要执行的任务'''
         print(' ---------- task任务开始执行 ---------- ')
         print("本定时器未设置定时任务内容")
@@ -67,19 +72,19 @@ class TimedTaskBasic():
         now_month = now_time.month
         now_day = now_time.day
 
-        #今天早上8点时间表示
+        # 今天早上8点时间表示
         # today_8 = datetime.datetime.strptime(str(now_year)+'-'+str(now_month)+'-'+str(now_day)+' '+'08:00:00','%Y-%m-%d %H:%M:%S')
         today_8 = datetime.datetime.strptime(str(now_year)+'-'+str(now_month)+'-'+str(now_day)+' ' + str(self.beginTime),'%Y-%m-%d %H:%M:%S')
         #明天早上8点时间表示
         tomorrow_8 = datetime.datetime.strptime(str(now_year)+'-'+str(now_month)+'-'+str(now_day)+' ' + str(self.beginTime),'%Y-%m-%d %H:%M:%S')
 
-        #判断当前时间是否过了今天凌晨3点,如果没过，则今天早上8点开始执行，过了则从明天早上8点开始执行，计算程序等待执行的时间
+        # 判断当前时间是否过了今天凌晨8点,如果没过，则今天早上8点开始执行，过了则从明天早上8点开始执行，计算程序等待执行的时间
         if(now_time <= today_8):
             wait_time = (today_8 - now_time).total_seconds()
         else:
             wait_time = (tomorrow_8 - now_time).total_seconds()
 
-        #等待wait_time秒后（今天早上8点或明天早上8点），开启线程去执行func函数
+        # 等待wait_time秒后（今天早上8点或明天早上8点），开启线程去执行func函数
         self.thread = threading.Timer(wait_time,self.func1)    # 当前线程
         self.thread.start()
 
@@ -144,10 +149,15 @@ class TimedTask4AutoDealwithPost(TimedTaskBasic):
             rati.run(proj_absPath=self.setting["proj_absPath"], oriDomain=self.setting["oriDomain"], database=self.setting['dbName'], tableNameList=self.setting['tableName'])
         elif(self.setting["whichKind"]=='video'):
             rav.run_bilibili(setting=self.setting)
+        print("上传数据完成，接下来清空数据库")
+        # 上传完直接清空数据库，不用再用定时器
+        clearDB = TimedTask4AutoClearDB(setting=self.setting)
+        clearDB.task()
+
 
 # 3. 定时任务 ———— 数据库对应上传过的数据清除的类
 class TimedTask4AutoClearDB(TimedTaskBasic):
-    def task(self, setting):
+    def task(self):
         '''
         setting = {
             "beginTime": '08:00:00',  # 注意表示 一位数字的要0开头
@@ -158,78 +168,116 @@ class TimedTask4AutoClearDB(TimedTaskBasic):
             "tableName" : ['tb_namecode']    # 待清空的表名
         }
         '''
-        if(setting['whichKind'] == 'keyParagraph' or setting['whichKind'] == 'relativeParagraph'):
+        if(self.setting['whichKind'] == 'keyParagraph' or self.setting['whichKind'] == 'relativeParagraph'):
             # 处理的是段落相关的表
-            for table in setting['tableName']:
-                # 1 创建并复制数据库表到指定的用于存放上传过的数据内容的库中
-                # sql4copy2postedDB = "CREATE TABLE `postedurldatabase`.`tb_article_posted` as select * from `anxinscdatabase`.`tb_articleinfo` where 1=1;"
-                # sql4copy2tb_posted = "insert  into `postedurldatabase`.`tb_article_posted`(paragraph, url, hasTag) select paragraph, url, hasTag from `{}`.`tb_articleinfo`;".format(
-                #     setting["databaseName"]
-                # )
+            if(type(self.setting['tableName2Clear'])==str):
+                # 传入的等待清空的是表名字符串
                 # 2 清空数据库表的sql
                 sql4truncate = "TRUNCATE `{}`.`{}`;".format(
-                    setting["databaseName"],
-                    table
+                    self.setting["databaseName"],
+                    self.setting['tableName2Clear']
                 )
-
-                dbOperator = dbOp.dbOperator(setting["databaseName"])
+                dbOperator = dbOp.dbOperator(self.setting["databaseName"])
                 # 清空表之前先复制的操作已经放在了上传数据完成的后面
                 # dbOperator.cursor.execute(sql4copy2tb_posted)
                 dbOperator.cursor.execute(sql4truncate)
-            dbOperator.closeDb()
-        elif(setting['whichKind'] == 'thumbnailImgs'):
-            # 处理的是缩略图相关的表
-            for table in setting['tableName']:
-                # 1 创建并复制数据库表到指定的用于存放上传过的数据内容的库中
-                sql4copy2tb_posted = "insert  into `postedurldatabase`.`tb_thumbnailimgs_posted`(`dateline`, `formatDate`, `origin_pic_path`, `pic_path`, `title`, `user_name`, `user_uid`, `user_avatar`) select paragraph, `dateline`, `formatDate`, `origin_pic_path`, `pic_path`, `title`, `user_name`, `user_uid`, `user_avatar` from `{}`.`{}`;".format(
-                    setting["databaseName"],
-                    table
-                )
-                # 2 清空数据库表的sql
-                sql4truncate = "TRUNCATE `{}`.`{}`;".format(
-                    setting["databaseName"],
-                    table
-                )
-                # 清空表之前先复制
-                dbOperator = dbOp.dbOperator(setting["databaseName"])
-                dbOperator.cursor.execute(sql4copy2tb_posted)
-                dbOperator.cursor.execute(sql4truncate)
-            dbOperator.closeDb()
-        elif (setting['whichKind'] == 'contentImgs'):
-            # 处理的是缩略图相关的表
-            for table in setting['tableName']:
-                # 1 创建并复制数据库表到指定的用于存放上传过的数据内容的库中
-                sql4copy2tb_posted = "insert  into `postedurldatabase`.`tb_contentimgs_posted`(`dateline`, `formatDate`, `origin_pic_path`, `pic_path`, `title`, `user_name`, `user_uid`, `user_avatar`) select paragraph, `dateline`, `formatDate`, `origin_pic_path`, `pic_path`, `title`, `user_name`, `user_uid`, `user_avatar` from `{}`.`{}`;".format(
-                    setting["databaseName"],
-                    table
-                )
-                # 2 清空数据库表的sql
-                sql4truncate = "TRUNCATE `{}`.`{}`;".format(
-                    setting["databaseName"],
-                    table
-                )
-                # 清空表之前先复制
-                dbOperator = dbOp.dbOperator(setting["databaseName"])
-                dbOperator.cursor.execute(sql4copy2tb_posted)
-                dbOperator.cursor.execute(sql4truncate)
-            dbOperator.closeDb()
+                dbOperator.closeDb()
+            else:
+                # 传入的等待清空的是表名列表
+                for table in self.setting['tableName2Clear']:
+                    # 2 清空数据库表的sql
+                    sql4truncate = "TRUNCATE `{}`.`{}`;".format(
+                        self.setting["databaseName"],
+                        table
+                    )
 
-        elif(setting['whichKind'] == 'video'):
-            # 处理视频相关的表
-            for table in setting['tableName']:
+                    dbOperator = dbOp.dbOperator(self.setting["databaseName"])
+                    # 清空表之前先复制的操作已经放在了上传数据完成的后面
+                    # dbOperator.cursor.execute(sql4copy2tb_posted)
+                    dbOperator.cursor.execute(sql4truncate)
+                dbOperator.closeDb()
+
+        elif(self.setting['whichKind'] == 'thumbnailImgs'):
+            if (type(self.setting['tableName2Clear']) == str):
+                # 传入的等待清空的是表名字符串
+                # 1 清空数据库表的sql
+                sql4truncate = "TRUNCATE `{}`.`{}`;".format(
+                    self.setting["databaseName"],
+                    self.setting['tableName2Clear']
+                )
+                dbOperator = dbOp.dbOperator(self.setting["databaseName"])
+                dbOperator.cursor.execute(sql4truncate)
+                dbOperator.closeDb()
+            else:
+                # 传入的等待清空的是表名列表
+                # 处理的是缩略图相关的表
+                for table in self.setting['tableName2Clear']:
+                    # 2 清空数据库表的sql
+                    sql4truncate = "TRUNCATE `{}`.`{}`;".format(
+                        self.setting["databaseName"],
+                        table
+                    )
+                    # 清空表之前先复制
+                    dbOperator = dbOp.dbOperator(self.setting["databaseName"])
+                    dbOperator.cursor.execute(sql4truncate)
+                dbOperator.closeDb()
+
+        elif (self.setting['whichKind'] == 'contentImgs'):
+
+            if (type(self.setting['tableName2Clear']) == str):
+                # 传入的等待清空的是表名字符串
                 # 2 清空数据库表的sql
                 sql4truncate = "TRUNCATE `{}`.`{}`;".format(
-                    setting["databaseName"],
-                    table
+                    self.setting["databaseName"],
+                    self.setting['tableName2Clear']
                 )
                 # 清空表之前先复制
-                dbOperator = dbOp.dbOperator(setting["databaseName"])
+                dbOperator = dbOp.dbOperator(self.setting["databaseName"])
                 dbOperator.cursor.execute(sql4truncate)
-            dbOperator.closeDb()
+                dbOperator.closeDb()
+            else:
+                # 传入的等待清空的是表名列表
+                # 处理的是缩略图相关的表
+                for table in self.setting['tableName2Clear']:
+                    # 2 清空数据库表的sql
+                    sql4truncate = "TRUNCATE `{}`.`{}`;".format(
+                        self.setting["databaseName"],
+                        table
+                    )
+                    # 清空表之前先复制
+                    dbOperator = dbOp.dbOperator(self.setting["databaseName"])
+                    dbOperator.cursor.execute(sql4truncate)
+                dbOperator.closeDb()
+
+        elif(self.setting['whichKind'] == 'video'):
+            if (type(self.setting['tableName2Clear']) == str):
+                # 传入的等待清空的是表名字符串
+                # 2 清空数据库表的sql
+                sql4truncate = "TRUNCATE `{}`.`{}`;".format(
+                    self.setting["databaseName"],
+                    self.setting['tableName2Clear']
+                )
+                # 清空表之前先复制
+                dbOperator = dbOp.dbOperator(self.setting["databaseName"])
+                dbOperator.cursor.execute(sql4truncate)
+                dbOperator.closeDb()
+            else:
+                # 传入的等待清空的是表名列表
+                # 处理视频相关的表
+                for table in self.setting['tableName2Clear']:
+                    # 2 清空数据库表的sql
+                    sql4truncate = "TRUNCATE `{}`.`{}`;".format(
+                        self.setting["databaseName"],
+                        table
+                    )
+                    # 清空表之前先复制
+                    dbOperator = dbOp.dbOperator(self.setting["databaseName"])
+                    dbOperator.cursor.execute(sql4truncate)
+                dbOperator.closeDb()
 
 if(__name__ == '__main__'):
     '''
-        下面是对股票代码数据的爬取流程自动化操作
+        下面是对股票代码数据的爬取流程自动化操作 测试
     '''
     setting4Spider = {
         "spiderPath": "E:\\Projects\\Crawl_Dealwith_Post_Auto\\stocksNameCode_Crawl_Auto\\stocksNameCode_Crawl_Auto",
@@ -239,12 +287,12 @@ if(__name__ == '__main__'):
         "endTime" : '09:00:00',
         "excuteDelta" : 3600  # 间隔1h 也就是说一天执行一次
     }
-    setting4AutoDP = {
-        "beginTime": '08:00:00',  # 注意表示 一位数字的要0开头
-        "endTime": '09:00:00',
-        "excuteDelta": 3600,  # 间隔1h 也就是说一天执行一次
-        "whichKind": 'keyParagraph'
-    }
+    # setting4AutoDP = {
+    #     "beginTime": '08:00:00',  # 注意表示 一位数字的要0开头
+    #     "endTime": '09:00:00',
+    #     "excuteDelta": 3600,  # 间隔1h 也就是说一天执行一次
+    #     "whichKind": 'keyParagraph'
+    # }
     setting4AutoCDB = {
         "beginTime": '08:00:00',  # 注意表示 一位数字的要0开头
         "endTime": '09:00:00',
@@ -254,16 +302,21 @@ if(__name__ == '__main__'):
         "tableName" : 'tb_namecode'    # 待清空的表名
     }
 
+    # # 创建定时任务器 -- Spider任务
+    # timedTask1_Spider = TimedTask4Spider(setting=setting4Spider, beginTime=setting4Spider["beginTime"], endTime=setting4Spider["endTime"], excuteDelta=setting4Spider["excuteDelta"])
+    # timedTask1_Spider.task(setting=setting4Spider)
+    # timedTask1_Spider.timedTaskRun()
+    #
+    # # 2 定时器 ———— 处理和上传数据
+    # timedTask1_autoDP = TimedTask4AutoDealwithPost()
+    # # timedTask1_autoDP.task(setting=setting4AutoDP)
+    # timedTask1_autoDP.timedTaskRun()
+
+    # # 3 定时器 ———— 删除数据库对应上传完成的数据
+    # timedTask1_autoCDB = TimedTask4AutoClearDB()
+    # timedTask1_autoCDB.task(setting=setting4AutoCDB)
+
     # 创建定时任务器 -- Spider任务
-    timedTask1_Spider = TimedTask4Spider(setting=setting4Spider, beginTime=setting4Spider["beginTime"], endTime=setting4Spider["endTime"], excuteDelta=setting4Spider["excuteDelta"])
-    timedTask1_Spider.task(setting=setting4Spider)
+    timedTask1_Spider = TimedTaskBasic()
+    # timedTask1_Spider.task(setting=setting4Spider)
     timedTask1_Spider.timedTaskRun()
-
-    # 2 定时器 ———— 处理和上传数据
-    timedTask1_autoDP = TimedTask4AutoDealwithPost()
-    timedTask1_autoDP.task(setting=setting4AutoDP)
-    timedTask1_autoDP.timedTaskRun()
-
-    # 3 定时器 ———— 删除数据库对应上传完成的数据
-    timedTask1_autoCDB = TimedTask4AutoClearDB()
-    timedTask1_autoCDB.task(setting=setting4AutoCDB)

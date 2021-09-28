@@ -2,6 +2,7 @@
     自动化引擎
         缩略图 清洗 筛选 并上传
 '''
+from .globalTools import globalTools
 from .imagesRef.Poster import Poster
 from .imagesRef.universalTools import tools
 from .imagesRef.Classifier import Classifier
@@ -79,4 +80,4 @@ def run(proj_absPath, oriDomain, database, tableNameList):
     # 传送缩略图
     imgposter0 = Poster.ImgPoster(imgDirPath=setting['imgsThumbnailDir'])
     imgposter0.updateImgsThumbnail()
-
+    globalTools.finishTask()

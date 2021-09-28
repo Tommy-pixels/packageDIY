@@ -25,6 +25,7 @@ class Cleaner():
             self.filterWord.append('(' + str(i) + ')')
         for item in self.numList1:
             self.filterWord.append(item + '、')
+            self.filterWord.append(item + '。')
             self.filterWord.append('(' + item + ')')
         for item in self.numList2:
             self.filterWord.append(item + '、')

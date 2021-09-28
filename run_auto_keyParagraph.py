@@ -2,6 +2,7 @@
     自动化引擎
         从关键段落数据库中获取数据 进行 清洗 筛选 并上传 （已完成）
 '''
+from .globalTools import globalTools
 from .articlesRef.DatabaserOperator import databaseOperator as dbOp
 from .articlesRef.Filter import Filter
 from .articlesRef.Poster import Poster
@@ -48,7 +49,7 @@ def run(setting):
                 sql = "INSERT INTO `postedurldatabase`.`tb_article_posted` (`paragraph`) VALUES (\'{}\');".format(
                     paragraph[0])
                 postedDBOP.insertData2DB(sql)
-            print("postedurldatabase 数据库的更新操作完成 流程结束")
+        globalTools.finishTask()
 
 
     elif(setting['domain'] == 'magicsunshading'):
@@ -84,4 +85,4 @@ def run(setting):
         for paragraph in postableList:
             sql = "INSERT INTO `postedurldatabase`.`tb_article_posted` (`paragraph`) VALUES (\'{}\');".format(paragraph[0])
             postedDBOP.insertData2DB(sql)
-        print("postedurldatabase 数据库的更新操作完成 流程结束")
+        globalTools.finishTask()

@@ -2,6 +2,7 @@
     自动化引擎
         内容图 清洗 筛选 并上传
 '''
+from .globalTools import globalTools
 from .imagesRef.Poster import Poster
 from .imagesRef.universalTools import tools
 from .imagesRef.Classifier import Classifier
@@ -68,3 +69,5 @@ def run(proj_absPath, oriDomain, database, tableNameList):
     # 传送内容图
     # imgposter0 = Poster.ImgPoster(imgDirPath=setting['imgsCleanedDir'])
     # imgposter0.updateImgs()
+
+    globalTools.finishTask()
