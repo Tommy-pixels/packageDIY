@@ -1,3 +1,4 @@
+import datetime
 import os
 from moviepy.editor import VideoFileClip
 import cv2
@@ -50,8 +51,23 @@ class videoFilter():
         self.videoNameList = os.listdir(dirOriPath)  # 获取目录下所有图片的名字
         self.checker = FileCheck()
         self.videoPathList = []
-        # for name in self.videoNameList:
-        #     self.videoPathList.append(self.videoDirPath + name)
+        self.dbOperator = dbOp.dbOperator(databaseName='postedurldatabase')
+        self.filterwordList = [
+            '早评', '午评', '午间点评', '点评', '午间短评'
+        ]
+        # 股票名
+        stocksnamecodeList = self.dbOperator.getAllDataFromDB(sql="SELECT `name` FROM stocksnamecode.tb_namecode;")
+        for stock in stocksnamecodeList:
+            self.filterwordList.append(stock[0])
+        # 获取日期作为过滤关键词
+        date_str = str(datetime.date.today()).split('-')
+        year = date_str[0]
+        month = date_str[1]
+        day = date_str[2]
+        self.filterwordList.append(month + '.' + day)
+        self.filterwordList.append(month + '月' + day)
+        self.filterwordList.append(month + '/' + day)
+        self.filterwordList.append(month + day)
 
     # 获取视频文件的封面
     def getCoverImg(self, videoPath, coverSavedPath='E:\\cur_Cover.jpg',frameNum=180):
@@ -92,8 +108,8 @@ class videoFilter():
     # 过滤掉上传过的视频
     def filter_posted(self, urlList):
         # 从数据库获取上传过的数据
-        dbOperator = dbOp.dbOperator(databaseName='postedurldatabase')
-        postedList = dbOperator.getAllDataFromDB("SELECT title, videoUrl FROM `postedurldatabase`.`tb_video_posted`;")
+
+        postedList = self.dbOperator.getAllDataFromDB("SELECT title, videoUrl FROM `postedurldatabase`.`tb_video_posted`;")
         tempList = []
         if(postedList):
             for postedItem in postedList:
@@ -114,6 +130,17 @@ class videoFilter():
             return True
         else:
             return False
+
+    # 过滤标题关键词
+    def filter_keywordFromTitle(self, videoInfoLis):
+        fl_videoInfoList = []
+        for keyword in self.filterwordList:
+            for videoInfo in videoInfoLis:
+                if(keyword in videoInfo[0]):
+                    continue
+                else:
+                    fl_videoInfoList.append(videoInfo)
+        return fl_videoInfoList
 
 
 

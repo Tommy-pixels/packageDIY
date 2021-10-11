@@ -41,14 +41,24 @@ def run(proj_absPath, oriDomain, database, tableNameList):
     # 从数据库获取图片链接 下载图片
     print("从数据库获取图片链接")
     dbOperator = dbOp.dbOperator(database)
+    # 上传过的图片去重
+    picList_posted_ = dbOperator.getAllDataFromDB("SELECT `origin_pic_path` FROM `postedurldatabase`.`tb_thumbnailimgs_posted`")
+    picList_posted = []
+    for item in picList_posted_:
+        picList_posted.append(item[0])
+    print(picList_posted)
     print("下面开始下载图片")
     for table in tableNameList:
         sql = "SELECT `id`,`origin_pic_path` FROM `" + table + "`;"
         imgUrlPathList = dbOperator.getAllDataFromDB(sql)
         print("数据表为 ", table, "获得图片链接数量： ", len(imgUrlPathList))
         for imgUrl in imgUrlPathList:
+            if(imgUrl[1] in picList_posted):
+                continue
             imgName = table + "_" + str(imgUrl[0])
             tools.downimg(urlpath=imgUrl[1], imgname=imgName, dstDirPath=setting["imgsCrawledDir"])
+            insert_SQL = "INSERT INTO `postedurldatabase`.`tb_thumbnailimgs_posted` (`origin_pic_path`) VALUES (\'{}\');".format(imgUrl[1])
+            dbOperator.insertData2DB(insert_SQL)
 
     print("图片下载完成")
     # 对爬取下来的图片进行处理 - 识别重命名、过滤、水印的识别及裁切 处理完后放在路径  ./assets/imgsCleanedDir 下

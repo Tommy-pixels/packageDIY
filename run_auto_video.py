@@ -7,17 +7,18 @@ from .videoRef.universalTools import tools
 from .videoRef.Spider import bySelenium
 from .videoRef.DatabaserOperator import databaseOperator as dbOp
 from .videoRef.Poster.Poster import VideoPoster
+from .videoRef.Filter.Filter import videoFilter
 from fake_useragent import UserAgent
 
 def run_bilibili(setting):
     dbOperator = dbOp.dbOperator('bilibilidatabase')    # 获取未上传的数据
     posted_dbOp = dbOp.dbOperator(databaseName='postedurldatabase')     # 连接上传过的的数据的数据库
-
     poster = VideoPoster(videoDirPath='E:\\test\\')
-
+    filter_video = videoFilter()
     # 获取最新爬取下来待上传的视频信息列表
     sql = "SELECT title, avValue, videoUrl, pubdate FROM `bilibilidatabase`.`tb_videoInfo`;"
     videoInfoList = dbOperator.getAllDataFromDB(sql)    # 未上传的数据
+
     i = 1
 
     # 获取上传过的视频title列表
@@ -29,6 +30,8 @@ def run_bilibili(setting):
     # checkDate_time = int(tools.getSecondByDate("20210924 12:16:52"))    # 最近一次上传的最新的一个视频的时间戳
     checkDate_time = int(dbOperator.getOneDataFromDB("SELECT * FROM `bilibilidatabase`.`tb_posted_timethenewest`;")[1])
 
+    # 过滤标题操作
+    videoInfoList = filter_video.filter_keywordFromTitle(videoInfoList)
     if(videoInfoList):
         checkIfSuccess = False
         newestPubdate = checkDate_time  # 上传成功的最近的一次pubdate`bilibilidatabase`.`tb_posted_timethenewest` SET `timethenewest`
