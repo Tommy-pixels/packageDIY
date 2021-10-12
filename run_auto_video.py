@@ -63,6 +63,14 @@ def run_bilibili(setting):
                 except Exception as e:
                     checkIfSuccess = False
                     print("视频上传出错: ", postResult)
+                finally:
+                    try:
+                        # 上传完删除对应单个视频
+                        if(i!=1):
+                            globalTools.delVideoSingle('E:\\test\\' + str(i-1) + '.mp4')
+                    except Exception as e:
+                        print("删除上个视频出错： ", str(i-1) + '.mp4')
+                        print(e)
 
                 if(checkIfSuccess):
                     # 更新上传过的数据库 postedurldatabase
@@ -86,6 +94,9 @@ def run_bilibili(setting):
         dbOperator.insertData2DB(sql_update)
     else:
         print("数据库为空，无待上传的数据")
+
+    # 上传完成清空存放视频的目录
+    globalTools.clearDirFiles('E:\\test\\')
     globalTools.finishTask()
 
 def run():

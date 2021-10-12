@@ -18,3 +18,7 @@ def clearDirFiles(dirPath):
     for i in lis:
         os.remove(dirPath + i)
 
+# 删除指定文件
+def delVideoSingle(filePath):
+    os.remove(filePath)
+
