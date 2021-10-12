@@ -134,12 +134,13 @@ class videoFilter():
     # 过滤标题关键词
     def filter_keywordFromTitle(self, videoInfoLis):
         fl_videoInfoList = []
-        for keyword in self.filterwordList:
-            for videoInfo in videoInfoLis:
-                if(keyword in videoInfo[0]):
-                    continue
-                else:
-                    fl_videoInfoList.append(videoInfo)
+        for videoInfo in videoInfoLis:
+            check = False
+            for keyword in self.filterwordList:
+                if (keyword in videoInfo[0]):
+                    check = True
+            if (videoInfo not in fl_videoInfoList and not check):
+                fl_videoInfoList.append(videoInfo)
         return fl_videoInfoList
 
 

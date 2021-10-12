@@ -11,3 +11,10 @@ def delSpace(paragraph):
 
 def finishTask():
     print("流程结束，单次任务结束（爬取、处理、上传数据， 对应数据库数据的清空以及posturldatabase数据库的更新）")
+
+# 清空指定目录下所有文件
+def clearDirFiles(dirPath):
+    lis = os.listdir(dirPath)
+    for i in lis:
+        os.remove(dirPath + i)
+
