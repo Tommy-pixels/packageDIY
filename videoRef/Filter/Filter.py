@@ -53,7 +53,13 @@ class videoFilter():
         self.videoPathList = []
         self.dbOperator = dbOp.dbOperator(databaseName='postedurldatabase')
         self.filterwordList = [
-            '早评', '午评', '午间点评', '点评', '午间短评'
+            '早评', '午评', '午间点评', '点评', '午间短评',
+            '昨夜', '昨天', '今日', '今天', '明天', '明日', '十年未来',
+            '九月', '十月', '十一月', '十二月', '一月',
+            '9月', '10月', '11月', '12月', '1月',
+            '华为',
+            '板块',
+            '主力拉升', '走势'
         ]
         # 股票名
         stocksnamecodeList = self.dbOperator.getAllDataFromDB(sql="SELECT `name` FROM stocksnamecode.tb_namecode;")

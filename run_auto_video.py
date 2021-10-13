@@ -94,9 +94,6 @@ def run_bilibili(setting):
         dbOperator.insertData2DB(sql_update)
     else:
         print("数据库为空，无待上传的数据")
-
-    # 上传完成清空存放视频的目录
-    globalTools.clearDirFiles('E:\\test\\')
     globalTools.finishTask()
 
 def run():

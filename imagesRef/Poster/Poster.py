@@ -40,7 +40,7 @@ class ImgPoster:
         # print("修改MD5的文件：", imgSrc, "\n旧MD5: ", md5, " \t 新MD5： ", newMD5)
 
     # post发送单张图片
-    def post_imgSingle(self, imgName, interface='http://121.40.187.51:8033/api/contentimgs_api'):
+    def post_imgSingle(self, imgName, interface='http://121.40.187.51:8088/api/contentimgs_api'):
         userName = 'qin'
         password = 'qin123456'
         curTime = self.getCurTime()

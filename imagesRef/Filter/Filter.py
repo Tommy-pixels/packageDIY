@@ -271,6 +271,16 @@ class imgsFilter():
         # 水印裁切
         self.classifyImgsListByWaterMask()
 
+    def run_nomaskOp(self):
+        # 过滤的整个步骤集成
+        # 关键词过滤
+        self.filterStrList()
+        # 过滤掉打不开的图片
+        self.filterNoneFile()
+        # 尺寸过滤
+        # self.filterImgBySizeAll()
+        # 将经过初步过滤的图片复制到新的目录下
+        self.setCopyCleanedImgsList()
 
     def run(self):
         # 过滤的整个步骤集成
