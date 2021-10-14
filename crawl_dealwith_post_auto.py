@@ -12,6 +12,7 @@ from . import run_auto_keyParagraph as rakp
 from . import run_auto_relativeParagraph as rarp
 from . import run_auto_contentImgs as raci
 from . import run_auto_thumbnailImgs as rati
+from . import run_auto_comment as rac
 from .articlesRef.DatabaserOperator import databaseOperator as dbOp
 from . import run_auto_video as rav
 
@@ -149,6 +150,9 @@ class TimedTask4AutoDealwithPost(TimedTaskBasic):
             rati.run(proj_absPath=self.setting["proj_absPath"], oriDomain=self.setting["oriDomain"], database=self.setting['databaseName'], tableNameList=self.setting['tableName'])
         elif(self.setting["whichKind"]=='video'):
             rav.run_bilibili(setting=self.setting)
+        elif(self.setting["whichKind"]=='articleComment'):
+            rac.run(setting=self.setting)
+            print("articleComment")
         print("上传数据完成，接下来清空数据库")
         # 上传完直接清空数据库，不用再用定时器
         clearDB = TimedTask4AutoClearDB(setting=self.setting)

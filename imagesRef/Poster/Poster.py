@@ -2,11 +2,11 @@ import json
 import os, time, requests, hashlib
 from requests_toolbelt import MultipartEncoder
 from ..universalTools import tools
+from globalTools import globalTools
 '''
     Post 图片的类
         参数：
             imgDirPath  处理完的图片目录路径dir   注意这里的路径最后加\\的
-
 '''
 
 
@@ -68,6 +68,14 @@ class ImgPoster:
         }
         imgPostResult = requests.post(url=interface, data=m, headers=headers2)
         f.close()
+
+        try:
+            # 上传完删除对应单张图片
+            globalTools.delVideoSingle(imgPath)
+        except Exception as e:
+            print("删除图片出错： ", imgPath)
+            print(e)
+
         return imgPostResult
 
     # 发送目录下的所有所有图

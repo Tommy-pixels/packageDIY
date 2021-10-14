@@ -44,3 +44,11 @@ class Poster():
                     'keyword': item[1]
                 }
                 self.poster(postableData=postableData)
+            elif(whichKind=='articleComment'):
+                postableData = {
+                    "key": self.key,
+                    "account": self.userName,
+                    "password": self.password,
+                    'comment': item[0].replace(item[1], '股票')
+                }
+                self.poster(postableData=postableData)

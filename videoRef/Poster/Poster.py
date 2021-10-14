@@ -1,12 +1,9 @@
-import json
 import os, time, requests, hashlib
 from requests_toolbelt import MultipartEncoder
 from ..universalTools import tools
 from ..Filter import Filter
 from ..DatabaserOperator.databaseOperator import dbOperator as dbOp
-from io import TextIOWrapper, BytesIO,BufferedReader
-import numpy as np
-from PIL import Image
+from io import TextIOWrapper, BytesIO
 '''
     Post 视频的类
         参数：
