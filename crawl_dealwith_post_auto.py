@@ -172,7 +172,7 @@ class TimedTask4AutoClearDB(TimedTaskBasic):
             "tableName" : ['tb_namecode']    # 待清空的表名
         }
         '''
-        if(self.setting['whichKind'] == 'keyParagraph' or self.setting['whichKind'] == 'relativeParagraph'):
+        if(self.setting['whichKind'] == 'keyParagraph' or self.setting['whichKind'] == 'relativeParagraph' or self.setting['whichKind'] == 'articleComment'):
             # 处理的是段落相关的表
             if(type(self.setting['tableName2Clear'])==str):
                 # 传入的等待清空的是表名字符串

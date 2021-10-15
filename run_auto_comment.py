@@ -9,7 +9,7 @@ from .commentsRef.Poster import Poster
 
 def run(setting):
     # setting = {
-    #     'databaseName' : 'nanfangcaifudatabase',
+    #     'databaseName' : 'commentdatabase',
     #     'databaseUser' : 'root',
     #     'databasePasswd' : 'root',
     #     'keywordList' : ['个股', '股市', 'A股', '港股', '新股', '美股', '创业板', '证券股', '股票', '炒股', '散户', '短线', '操盘', '波段']

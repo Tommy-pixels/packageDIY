@@ -1,4 +1,4 @@
-import os
+import os, time
 
 # 获取当前根目录路径
 def getCurOriPath():
@@ -21,4 +21,16 @@ def clearDirFiles(dirPath):
 # 删除指定文件
 def delVideoSingle(filePath):
     os.remove(filePath)
+
+
+# 获取当前日期
+def getCurDate():
+    return time.strftime("%Y%m%d", time.localtime())
+
+# 返回指定日期时间戳 时间格式 '%Y%m%d %H:%M:%S' 20210924 00：00：00 该方法用于哔哩哔哩时间的判断
+def getSecondByDate(date):
+    b = time.strptime(date, '%Y%m%d %H:%M:%S')
+    return time.mktime(b)
+
+
 

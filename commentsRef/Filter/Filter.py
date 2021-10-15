@@ -36,10 +36,10 @@ class Filter():
     # -> 评论内容的集成操作方法
     def integratedOp4List_comment(self, commentList, keywordList):
         result = []
-        # cleanerInstance = Cleaner.Cleaner()
+        cleanerInstance = Cleaner.Cleaner()
         for item in commentList:
             # 1 进行清洗操作(评论不用清洗 去除两边空格就可了)
-            # item[1] = cleanerInstance.integratedOp(item[1])
+            item[1] = cleanerInstance.integratedOp_comment(item[1])
             item[1] = item[1].strip()
             for keyword in keywordList:
                 # 2 根据字符串长度25-250间进行筛选

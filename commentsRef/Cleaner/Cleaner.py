@@ -41,6 +41,7 @@ class Cleaner():
         dbOperator.closeDb()
         del dbOperator
 
+
     # 清洗掉空格和结尾的空格
     def delSpace(self, paragraph):
         return paragraph.replace("\r", "").replace("\n", "").replace("\t", "").replace("\xa0", "").replace("\u3000","")
@@ -74,6 +75,13 @@ class Cleaner():
             paragraph = paragraph.replace(irrelevantWord, "")
         return paragraph
 
+    # 针对评论内容中有标签内容的
+    def del_webTag(self, comment):
+        s = ''
+        for m in comment.split('>'):
+            s = s + m.split('<')[0]
+        return s
+
     # 集成操作方法， 输出的结果为最终清洗完成的结果
     def integratedOp(self, paragraph):
         # 清序号
@@ -87,3 +95,10 @@ class Cleaner():
         # 清不相关的文字
         result = self.delIrrelevantWord(temp)
         return result
+
+    def integratedOp_comment(self, comment):
+        # 清空格
+        temp = self.delSpace(comment)
+        result = self.del_webTag(temp)
+        return result
+
