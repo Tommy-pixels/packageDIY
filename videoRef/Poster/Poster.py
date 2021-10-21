@@ -80,7 +80,7 @@ class VideoPoster:
                 "key": self.key,
                 "account": self.userName,
                 "password": self.password,
-                'title': title0,
+                'title': tools.cleanTitle(title0),
                 'img': ('cover.jpg', imgf, "image/jpeg"),
                 'video': (videoName, videof)
             })

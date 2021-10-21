@@ -20,7 +20,7 @@ class Filter():
             else:
                 return False
         elif(whichKind == 'articleComment'):
-            if (len(paragraph) > 25 and len(paragraph) < 250):
+            if (len(paragraph) > 45 and len(paragraph) < 250):
                 return True
             else:
                 return False
@@ -61,9 +61,11 @@ class Filter():
 class Filter_Posted():
     def __init__(self):
         self.dbOperator = dbOp.dbOperator(databaseName='postedurldatabase')
+        self.cleaner = Cleaner.Cleaner()
 
     # comment 为待处理上传的数据
     def filterPosted(self, comment):
+        comment = self.cleaner.integratedOp_comment(comment)
         comment = comment.strip()  # 清除一下左右空格
         sql = "SELECT * FROM `postedurldatabase`.`tb_comment_posted` where `comment` = \'{}\';".format(comment)
 

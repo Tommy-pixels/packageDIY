@@ -474,3 +474,5 @@ def downVideo(urlpath, name, dstDirPath, headers_):
         f.write(video)
     r.close()   # 关闭很重要，确保不要过多的连接
 
+def cleanTitle(title):
+    return title.replace('&quot;', '').replace(' ', '')
