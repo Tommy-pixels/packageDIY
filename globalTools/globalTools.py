@@ -32,5 +32,6 @@ def getSecondByDate(date):
     b = time.strptime(date, '%Y%m%d %H:%M:%S')
     return time.mktime(b)
 
-
-object
+# 模拟浏览器打开指定连接并且获取header和cookie并输出
+def getCookieandHeader(url):
+    pass

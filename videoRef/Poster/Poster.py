@@ -14,7 +14,7 @@ from io import TextIOWrapper, BytesIO
 
 class VideoPoster:
     # 传入的dirPath必须是这样的格式： XX:\\XX\\ 最后是有 \\ 的
-    def __init__(self, videoDirPath, interface='http://121.40.187.51:8088/api/videos_api'):
+    def __init__(self, videoDirPath, coverSavedPath, interface='http://121.40.187.51:8088/api/videos_api'):
         self.videoDirPath = videoDirPath
         self.get_videoPathList()
         self.interface = interface
@@ -23,6 +23,7 @@ class VideoPoster:
         self.curDate = str(tools.getCurDate())
         self.key = hashlib.md5(('datapool' + self.userName + self.password + self.curDate).encode('utf-8')).hexdigest()
         # self.videoPathFilteredList = videoPathFilteredList
+        self.coverSavedPath = coverSavedPath
 
     # 获取目录下所有文件的路径列表
     def get_videoPathList(self):
@@ -63,7 +64,8 @@ class VideoPoster:
         title = dbOperator.getOneDataFromDB(sql)[0]
         return title
 
-    def post_videoSingle(self, videoName, title0,coverSavedPath='E:\\cur_Cover.jpg'):
+    def post_videoSingle(self, videoName, title0):
+        coverSavedPath = self.coverSavedPath
         videoPath = self.videoDirPath + videoName
         print("处理的路径： ", videoPath)
         imgfil = Filter.videoFilter()

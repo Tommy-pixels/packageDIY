@@ -28,13 +28,14 @@ def run(setting):
     filterInstance = Filter.Filter()
     postableList = filterInstance.integratedOp4List_comment(commentList=dataList, keywordList=setting['keywordList'])
 
+
     # 4 上传列表
     posterInstance = Poster.Poster(interface='http://121.40.187.51:8088/api/articlecomment_api')
     posterInstance.post_auto(postableList, whichKind='articleComment')
 
-    # 5 将上传过的数据放到postedurldatabase中
-    postedDBOP = dbOp.dbOperator(databaseName='postedurldatabase', user='root', passwd='root')
-    for comment in postableList:
-        sql = "INSERT INTO `postedurldatabase`.`tb_comment_posted` (`comment`) VALUES (\'{}\');".format(comment[0])
-        postedDBOP.insertData2DB(sql)
+    # # 5 将上传过的数据放到postedurldatabase中
+    # postedDBOP = dbOp.dbOperator(databaseName='postedurldatabase', user='root', passwd='root')
+    # for comment in postableList:
+    #     sql = "INSERT INTO `postedurldatabase`.`tb_comment_posted` (`comment`) VALUES (\'{}\');".format(comment[0])
+    #     postedDBOP.insertData2DB(sql)
     globalTools.finishTask()

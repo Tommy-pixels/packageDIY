@@ -28,3 +28,4 @@ class A():
         # 不添加classmethod和staticmethod注解，函数需添加实例参数self
         print("func3")
         pass
+

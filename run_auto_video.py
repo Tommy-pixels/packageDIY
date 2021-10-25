@@ -10,10 +10,27 @@ from .videoRef.Poster.Poster import VideoPoster
 from .videoRef.Filter.Filter import videoFilter
 from fake_useragent import UserAgent
 
+def check_hasvideoindb0(checkDate_time, titlePostedList_,item):
+    # 过滤数据库中是否存在对应视频方案1
+    if(int(item[3]) > checkDate_time and item[0] not in titlePostedList_):
+        return True
+    else:
+        return False
+
+def check_hasvideoindb1(posted_dbOp, checkDate_time,item):
+    sql = "SELECT * FROM `postedurldatabase`.`tb_video_posted` WHERE `title`='{}';".format(item[0])
+    res = posted_dbOp.getOneDataFromDB(sql)
+    # 过滤数据库中是否存在对应视频方案1
+    if(int(item[3]) > checkDate_time and not res):
+        return True
+    else:
+        return False
+
 def run_bilibili(setting):
+    # setting['videoDirPath'] = 'E:\\test\\'
     dbOperator = dbOp.dbOperator('bilibilidatabase')    # 获取未上传的数据
     posted_dbOp = dbOp.dbOperator(databaseName='postedurldatabase')     # 连接上传过的的数据的数据库
-    poster = VideoPoster(videoDirPath='E:\\test\\')
+    poster = VideoPoster(videoDirPath=setting['videoDirPath'], coverSavedPath=setting['coverSavedPath'])
     filter_video = videoFilter()
     # 获取最新爬取下来待上传的视频信息列表
     sql = "SELECT title, avValue, videoUrl, pubdate FROM `bilibilidatabase`.`tb_videoInfo`;"
@@ -26,8 +43,7 @@ def run_bilibili(setting):
     titlePostedList_ = []
     for one in titlePostedList:
         titlePostedList_.append(one[0])
-    # checkDate_time = int(tools.getSecondByDate(tools.getCurDate() + ' 00:00:00'))
-    # checkDate_time = int(tools.getSecondByDate("20210924 12:16:52"))    # 最近一次上传的最新的一个视频的时间戳
+
     checkDate_time = int(dbOperator.getOneDataFromDB("SELECT * FROM `bilibilidatabase`.`tb_posted_timethenewest`;")[1])
 
     # 过滤标题操作
@@ -36,7 +52,9 @@ def run_bilibili(setting):
         checkIfSuccess = False
         newestPubdate = checkDate_time  # 上传成功的最近的一次pubdate`bilibilidatabase`.`tb_posted_timethenewest` SET `timethenewest`
         for item in videoInfoList:
-            if(int(item[3]) > checkDate_time and item[0] not in titlePostedList_):
+            # if(check_hasvideoindb0(checkDate_time, titlePostedList_, item)):
+            if(check_hasvideoindb1(posted_dbOp, checkDate_time, item)):
+
                 refererUrl = 'https://www.bilibili.com/video/av' + str(item[1])
                 vid_headers = {
                     'Origin': 'https://www.bilibili.com',
@@ -45,7 +63,7 @@ def run_bilibili(setting):
                 }
                 try:
                     # 视频数据发布时间在当天
-                    tools.downVideo(urlpath=item[2], name=str(i), dstDirPath="E:\\test\\", headers_=vid_headers)
+                    tools.downVideo(urlpath=item[2], name=str(i), dstDirPath=setting['videoDirPath'], headers_=vid_headers)
                     checkIfSuccess = True
                 except Exception as e:
                     checkIfSuccess = False
@@ -67,7 +85,7 @@ def run_bilibili(setting):
                     try:
                         # 上传完删除对应单个视频
                         if(i!=1):
-                            globalTools.delVideoSingle('E:\\test\\' + str(i-1) + '.mp4')
+                            globalTools.delVideoSingle(setting['videoDirPath'] + str(i-1) + '.mp4')
                     except Exception as e:
                         print("删除上个视频出错： ", str(i-1) + '.mp4')
                         print(e)
@@ -81,11 +99,6 @@ def run_bilibili(setting):
                 i = i+1
             else:
                 print("不符合条件，无法上传")
-                print(int(item[3]) > checkDate_time and item[0] not in titlePostedList_)
-                print(int(item[3]) > checkDate_time)
-                print(item[0] not in titlePostedList_)
-                print(titlePostedList_[titlePostedList_.index(item[0])])
-                print(item[0])
                 continue
         # 上传一切顺利，更新最新上传的视频的时间戳
         sql_update = "UPDATE `bilibilidatabase`.`tb_posted_timethenewest` SET `timethenewest`=\'{}\' WHERE (`id` = '1');".format(

@@ -55,11 +55,15 @@ class videoFilter():
         self.filterwordList = [
             '早评', '午评', '午间点评', '点评', '午间短评',
             '昨夜', '昨天', '今日', '今天', '明天', '明日', '十年未来',
+            '周一', '周二', '周三', '周四', '周五', '周六', '周日', '下周', '本周', '现状',
             '九月', '十月', '十一月', '十二月', '一月',
             '9月', '10月', '11月', '12月', '1月',
             '华为',
-            '板块', '银行券商', '，白酒医药', '新能源光伏',
-            '主力拉升', '走势'
+            '板块', '军工', '白酒', '医药', '新能源光伏', '白酒', '煤炭', '电力', '新能源', '科技股',
+            '银行券商',
+            '主力拉升', '走势', '大盘', '小幅拉升', '上涨行情', '拉升', '窄幅震荡',
+            '值得长期持有', '将迎来', '股价大涨', '再创历史新高', '走强'
+
         ]
         # 股票名
         stocksnamecodeList = self.dbOperator.getAllDataFromDB(sql="SELECT `name` FROM stocksnamecode.tb_namecode;")
@@ -70,10 +74,15 @@ class videoFilter():
         year = date_str[0]
         month = date_str[1]
         day = date_str[2]
+        self.filterwordList.append(year + month + day)
+        self.filterwordList.append(month + day)
         self.filterwordList.append(month + '.' + day)
+        self.filterwordList.append(month + '-' + day)
         self.filterwordList.append(month + '月' + day)
         self.filterwordList.append(month + '/' + day)
-        self.filterwordList.append(month + day)
+        self.filterwordList.append(day + '日')
+
+
 
     # 获取视频文件的封面
     def getCoverImg(self, videoPath, coverSavedPath='E:\\cur_Cover.jpg',frameNum=180):
@@ -114,7 +123,6 @@ class videoFilter():
     # 过滤掉上传过的视频
     def filter_posted(self, urlList):
         # 从数据库获取上传过的数据
-
         postedList = self.dbOperator.getAllDataFromDB("SELECT title, videoUrl FROM `postedurldatabase`.`tb_video_posted`;")
         tempList = []
         if(postedList):
@@ -148,6 +156,9 @@ class videoFilter():
             if (videoInfo not in fl_videoInfoList and not check):
                 fl_videoInfoList.append(videoInfo)
         return fl_videoInfoList
+
+
+
 
 
 
