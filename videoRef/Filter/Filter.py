@@ -55,14 +55,14 @@ class videoFilter():
         self.filterwordList = [
             '早评', '午评', '午间点评', '点评', '午间短评',
             '昨夜', '昨天', '今日', '今天', '明天', '明日', '十年未来',
-            '周一', '周二', '周三', '周四', '周五', '周六', '周日', '下周', '本周', '现状',
+            '周一', '周二', '周三', '周四', '周五', '周六', '周日', '下周', '本周', '现状', '本月',
             '九月', '十月', '十一月', '十二月', '一月',
             '9月', '10月', '11月', '12月', '1月',
             '华为',
-            '板块', '军工', '白酒', '医药', '新能源光伏', '白酒', '煤炭', '电力', '新能源', '科技股',
+            '板块', '军工', '白酒', '医药', '新能源光伏', '白酒', '煤炭', '电力', '新能源', '科技股', '储能', '光伏', '锂电池概念'
             '银行券商',
             '主力拉升', '走势', '大盘', '小幅拉升', '上涨行情', '拉升', '窄幅震荡',
-            '值得长期持有', '将迎来', '股价大涨', '再创历史新高', '走强'
+            '值得长期持有', '将迎来', '股价大涨', '再创历史新高', '走强', '反弹'
 
         ]
         # 股票名
@@ -76,7 +76,9 @@ class videoFilter():
         day = date_str[2]
         self.filterwordList.append(year + month + day)
         self.filterwordList.append(month + day)
+        self.filterwordList.append(month + str(int(day) - 1))
         self.filterwordList.append(month + '.' + day)
+        self.filterwordList.append(month + '.' + str(int(day) - 1))
         self.filterwordList.append(month + '-' + day)
         self.filterwordList.append(month + '月' + day)
         self.filterwordList.append(month + '/' + day)

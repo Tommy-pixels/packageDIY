@@ -9,7 +9,7 @@ class Cleaner():
         self.filterWord = [
             '●', '但是，', '所以，', '再说，', '虽然说，', '另外，', '最后，', '而且，',
             '其次，', '首先，', '再者，', '同时，', '不过，', '当然，', '当然啦，', '那么，', '虽然，',
-            '其实，', '通常，','接着，','综上所述，', '因此，'
+            '其实，', '通常，','接着，','综上所述，', '因此，', '、'
         ]
         self.alphabeticList = [
             'A','B','C','D','E','F','G','H'
@@ -22,6 +22,7 @@ class Cleaner():
             self.filterWord.append(str(i) + '，')
             self.filterWord.append(str(i) + '、')
             self.filterWord.append('（' + str(i) + '）')
+            self.filterWord.append(str(i) + '）')
             self.filterWord.append('(' + str(i) + ')')
         for item in self.numList1:
             self.filterWord.append(item + '、')

@@ -54,3 +54,63 @@ class Imgs2ThumbnailByDir():
     def cutOff2ThumbnailByDir(self):
         for imgName in self.thumbnailOriImgsList:
             self.cutOff2ThumbnailSingle(imgName=imgName, srcDirPath=self.thumbnailOriDirPath, dstDirPath=self.thumbnailDstDirPath, scaleW=121, scaleH=75)
+
+class ImgsSetSize:
+    def __init__(self, imgsOriDirPath):
+        self.imgsOriDirPath = imgsOriDirPath
+        self.oriImgNameList = os.listdir(imgsOriDirPath)
+
+    # 获取图片大小
+    def get_size(self, imgSrc):
+        # 获取文件大小:KB
+        size = os.path.getsize(imgSrc)
+        return size / 1024
+
+    # 压缩图片到指定大小，尺寸不变
+    def compress_image(self, imgName, mb=150, step=1, quality=80, k=0.9):
+        """不改变图片尺寸压缩到指定大小
+        :param infile: 压缩源文件
+        :param outfile: 压缩文件保存地址
+        :param mb: 压缩目标，KB
+        :param step: 每次调整的压缩比率
+        :param quality: 初始压缩比率
+        :return: 压缩文件地址，压缩文件大小
+        """
+        imgSrc = self.imgsOriDirPath + imgName
+        o_size = self.get_size(imgSrc)
+        if o_size <= mb:
+            return imgSrc
+        while o_size > mb:
+            img = Image.open(imgSrc)
+            x, y = img.size
+            img = img.resize((int(x*k), int(y*k)), Image.ANTIALIAS)
+            img.save(imgSrc, quality=quality)
+            if quality - step < 0:
+                break
+            quality -= step
+            o_size = self.get_size(imgSrc)
+        return imgSrc, self.get_size(imgSrc)
+
+
+    # 判断图片宽度是否超过制定长度默认1000，超过则按比例改变宽度为1000，保存原位置
+    def resize_singleImg(self, imgName, setWidth=1000):
+        imgOriSrc = self.imgsOriDirPath + imgName
+        img = Image.open(imgOriSrc)
+        if (img is not None):
+            imgSize = img.size
+            if(imgSize[0] > setWidth and imgSize[0] > imgSize[1]):
+                # print("图片宽度超过500, 缩放为高度500")
+                widthOri = setWidth
+                heightOri = int(imgSize[1] / imgSize[0] * setWidth)
+                img = img.resize((setWidth, heightOri), Image.ANTIALIAS)  # 缩放
+                img.save(imgOriSrc)
+            else:
+                pass
+
+
+    # 把指定目录下的图片resize，覆盖原文件
+    def resize_byDir(self):
+        for imgName in self.oriImgNameList:
+            self.resize_singleImg(imgName, setWidth=1000)
+            self.compress_image(imgName)
+

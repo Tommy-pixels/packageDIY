@@ -8,7 +8,7 @@ from .imagesRef.universalTools import tools
 from .imagesRef.Classifier import Classifier
 from .imagesRef.Filter import Filter
 from .imagesRef.DatabaserOperator import databaseOperator as dbOp
-import os
+from .imagesRef.Processing import Processing
 
 def run(proj_absPath, oriDomain, database, tableNameList, maskFilt=False):
     updateTime = tools.getCurDate()
@@ -79,7 +79,11 @@ def run(proj_absPath, oriDomain, database, tableNameList, maskFilt=False):
         filter.run_nomaskOp()
     print("过滤操作完成")
 
-    # 4 创建图片发送的poster 传送处理完成的图片
+    # 4 resize指定目录下的图片 默认为宽度小1000
+    setImgSizer = Processing.ImgsSetSize(setting['imgsCleanedDir'])
+    setImgSizer.resize_byDir()
+
+    # 5 创建图片发送的poster 传送处理完成的图片
     # 传送内容图
     imgposter0 = Poster.ImgPoster(imgDirPath=setting['imgsCleanedDir'])
     imgposter0.updateImgs()

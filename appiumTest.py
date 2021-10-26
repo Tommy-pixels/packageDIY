@@ -1,5 +1,6 @@
 from appium import webdriver
-
+import json
+json.loads()
 caps = {}
 caps["platformName"] = "Android"
 caps["platformVersion"] = "10.0"

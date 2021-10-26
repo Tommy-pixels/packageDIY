@@ -62,7 +62,7 @@ class Poster():
                     "key": self.key,
                     "account": self.userName,
                     "password": self.password,
-                    'comment': item[0].replace(item[1], '股票')
+                    'comment': item[0].replace(item[1], '股票').replace('&nbsp;',' ')
                 }
                 self.poster(postableData=postableData)
                 # 更新数据库
