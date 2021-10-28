@@ -26,6 +26,15 @@ def check_hasvideoindb1(posted_dbOp, checkDate_time,item):
     else:
         return False
 
+def check_videoRepeat(posted_dbOp, videoInfo):
+    sql = "SELECT * FROM `postedurldatabase`.`` WHERE `title`='{}';".format(videoInfo[0])
+    res = posted_dbOp.getAllDataFromDB()
+    if(res):
+        # 重复 返回True
+        return True
+    else:
+        return False
+
 def run_bilibili(setting):
     # setting['videoDirPath'] = 'E:\\test\\'
     dbOperator = dbOp.dbOperator('bilibilidatabase')    # 获取未上传的数据
@@ -48,11 +57,11 @@ def run_bilibili(setting):
 
     # 过滤标题操作
     videoInfoList = filter_video.filter_keywordFromTitle(videoInfoList)
+    # 针对哔哩哔哩的过滤
+    videoInfoList = filter_video.filter_keywordFromTitle4bilibili(videoInfoList)
     if(videoInfoList):
-        checkIfSuccess = False
         newestPubdate = checkDate_time  # 上传成功的最近的一次pubdate`bilibilidatabase`.`tb_posted_timethenewest` SET `timethenewest`
         for item in videoInfoList:
-            # if(check_hasvideoindb0(checkDate_time, titlePostedList_, item)):
             if(check_hasvideoindb1(posted_dbOp, checkDate_time, item)):
 
                 refererUrl = 'https://www.bilibili.com/video/av' + str(item[1])

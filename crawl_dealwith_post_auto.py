@@ -152,7 +152,6 @@ class TimedTask4AutoDealwithPost(TimedTaskBasic):
             rav.run_bilibili(setting=self.setting)
         elif(self.setting["whichKind"]=='articleComment'):
             rac.run(setting=self.setting)
-            print("articleComment")
         print("上传数据完成，接下来清空数据库")
         # 上传完直接清空数据库，不用再用定时器
         clearDB = TimedTask4AutoClearDB(setting=self.setting)
@@ -279,48 +278,3 @@ class TimedTask4AutoClearDB(TimedTaskBasic):
                     dbOperator.cursor.execute(sql4truncate)
                 dbOperator.closeDb()
 
-if(__name__ == '__main__'):
-    '''
-        下面是对股票代码数据的爬取流程自动化操作 测试
-    '''
-    setting4Spider = {
-        "spiderPath": "E:\\Projects\\Crawl_Dealwith_Post_Auto\\stocksNameCode_Crawl_Auto\\stocksNameCode_Crawl_Auto",
-        "spiderName": "StcockNameCodeSpider",
-        "command": "Scrapy crawl StcockNameCodeSpider",
-        "beginTime" : '08:00:00', # 注意表示 一位数字的要0开头
-        "endTime" : '09:00:00',
-        "excuteDelta" : 3600  # 间隔1h 也就是说一天执行一次
-    }
-    # setting4AutoDP = {
-    #     "beginTime": '08:00:00',  # 注意表示 一位数字的要0开头
-    #     "endTime": '09:00:00',
-    #     "excuteDelta": 3600,  # 间隔1h 也就是说一天执行一次
-    #     "whichKind": 'keyParagraph'
-    # }
-    setting4AutoCDB = {
-        "beginTime": '08:00:00',  # 注意表示 一位数字的要0开头
-        "endTime": '09:00:00',
-        "excuteDelta": 3600,  # 间隔1h 也就是说一天执行一次
-        "whichKind": 'keyParagraph',
-        "databaseName" : 'stocksnamecode',   # 对应的数据库名
-        "tableName" : 'tb_namecode'    # 待清空的表名
-    }
-
-    # # 创建定时任务器 -- Spider任务
-    # timedTask1_Spider = TimedTask4Spider(setting=setting4Spider, beginTime=setting4Spider["beginTime"], endTime=setting4Spider["endTime"], excuteDelta=setting4Spider["excuteDelta"])
-    # timedTask1_Spider.task(setting=setting4Spider)
-    # timedTask1_Spider.timedTaskRun()
-    #
-    # # 2 定时器 ———— 处理和上传数据
-    # timedTask1_autoDP = TimedTask4AutoDealwithPost()
-    # # timedTask1_autoDP.task(setting=setting4AutoDP)
-    # timedTask1_autoDP.timedTaskRun()
-
-    # # 3 定时器 ———— 删除数据库对应上传完成的数据
-    # timedTask1_autoCDB = TimedTask4AutoClearDB()
-    # timedTask1_autoCDB.task(setting=setting4AutoCDB)
-
-    # 创建定时任务器 -- Spider任务
-    timedTask1_Spider = TimedTaskBasic()
-    # timedTask1_Spider.task(setting=setting4Spider)
-    timedTask1_Spider.timedTaskRun()

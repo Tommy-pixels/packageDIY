@@ -77,12 +77,20 @@ class videoFilter():
         self.filterwordList.append(year + month + day)
         self.filterwordList.append(month + day)
         self.filterwordList.append(month + str(int(day) - 1))
+        self.filterwordList.append(month + str(int(day) + 1))
         self.filterwordList.append(month + '.' + day)
         self.filterwordList.append(month + '.' + str(int(day) - 1))
+        self.filterwordList.append(month + '.' + str(int(day) + 1))
         self.filterwordList.append(month + '-' + day)
         self.filterwordList.append(month + '月' + day)
         self.filterwordList.append(month + '/' + day)
+        self.filterwordList.append(month + '/' + str(int(day) - 1))
         self.filterwordList.append(day + '日')
+        self.filterwordList_bilibili = [
+            '第一集', '第七集', '第三课'
+        ]
+        for i in range(20):
+            self.filterwordList_bilibili.append('（' + str(i) + '）')
 
 
 
@@ -153,6 +161,18 @@ class videoFilter():
         for videoInfo in videoInfoLis:
             check = False
             for keyword in self.filterwordList:
+                if (keyword in videoInfo[0]):
+                    check = True
+            if (videoInfo not in fl_videoInfoList and not check):
+                fl_videoInfoList.append(videoInfo)
+        return fl_videoInfoList
+
+    # 针对哔哩哔哩的过滤标题关键词
+    def filter_keywordFromTitle4bilibili(self, videoInfoLis):
+        fl_videoInfoList = []
+        for videoInfo in videoInfoLis:
+            check = False
+            for keyword in self.filterwordList_bilibili:
                 if (keyword in videoInfo[0]):
                     check = True
             if (videoInfo not in fl_videoInfoList and not check):
