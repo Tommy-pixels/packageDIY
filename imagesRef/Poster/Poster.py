@@ -1,4 +1,7 @@
-import json
+import sys
+# 将包含parent包的路径添加进系统路径
+sys.path.append(r"E:\Projects\\packageDIY")
+
 import os, time, requests, hashlib
 from requests_toolbelt import MultipartEncoder
 from ..universalTools import tools

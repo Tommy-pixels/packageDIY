@@ -13,6 +13,7 @@ from . import run_auto_relativeParagraph as rarp
 from . import run_auto_contentImgs as raci
 from . import run_auto_thumbnailImgs as rati
 from . import run_auto_comment as rac
+from . import run_auto_selenium as ras
 from .articlesRef.DatabaserOperator import databaseOperator as dbOp
 from . import run_auto_video as rav
 
@@ -89,6 +90,16 @@ class TimedTaskBasic():
         self.thread = threading.Timer(wait_time,self.func1)    # 当前线程
         self.thread.start()
 
+# 永久执行任务
+class PermanentTask(TimedTaskBasic):
+    # 任务描述：永久任务 隔3600秒执行一次task任务
+    def func1(self):
+        # 该任务设置的
+        #   beginTime="00:01:00"
+        #   endTime="23:59:00"
+        self.func2()
+
+
 # 2. 定时任务 ———— 爬取数据的的类
 class TimedTask4Spider(TimedTaskBasic):
     def task(self):
@@ -148,7 +159,9 @@ class TimedTask4AutoDealwithPost(TimedTaskBasic):
             raci.run(proj_absPath=self.setting["proj_absPath"], oriDomain=self.setting["oriDomain"], database=self.setting['databaseName'], tableNameList=self.setting['tableName'])
         elif(self.setting["whichKind"] == 'thumbnailImgs'):
             rati.run(proj_absPath=self.setting["proj_absPath"], oriDomain=self.setting["oriDomain"], database=self.setting['databaseName'], tableNameList=self.setting['tableName'])
-        elif(self.setting["whichKind"]=='video'):
+        elif (self.setting['whichKind'] == 'video' and self.setting['crawlMethod'] == 'Selenium'):
+            ras.run_douyin(proj_absPath=self.setting["proj_absPath"], crawlUrl_list=self.setting['crawlUrl_list'],oriDomain=self.setting["oriDomain"])
+        elif(self.setting["whichKind"]=='video' and self.setting['crawlMethod'] == 'Scrapy'):
             rav.run_bilibili(setting=self.setting)
         elif(self.setting["whichKind"]=='articleComment'):
             rac.run(setting=self.setting)

@@ -83,7 +83,7 @@ class crawlFromDouyin():
         # 判断是否有上一次爬取
         if(self.theNewestTitle!=''):
             # 说明有上一次爬取
-            self.moveToBottom(times=30)
+            self.moveToBottom(move2BottomTimes)
             if(not(liFirstTitle == self.theNewestTitle)):
                 # 说明有更新
                 for li in liList:
@@ -191,14 +191,19 @@ class crawlFromDouyin():
         #     slider1.click()
 
 
-    def getRealVideo(self, videoList_):
-        poster = VideoPoster(videoDirPath='E:\\test\\')
+    def getRealVideo(self, videoList_, videoDirPath, coverSavedPath):
+        poster = VideoPoster(videoDirPath=videoDirPath, coverSavedPath=coverSavedPath)
+        filter_video = videoFilter()
         if (videoList_):
             videoList = self.filter.filter_posted(videoList_) # 过滤掉上传过的视频
             videoList = tools.cleanRepeated(videoList)  # 去重
+            # 过滤标题操作
+            videoList = filter_video.filter_keywordFromTitle(videoList)
         else:
             videoList = self.filter.filter_posted(self.enterIndexDouyin())
             videoList = tools.cleanRepeated(videoList)  # 去重
+            # 过滤标题操作
+            videoList = filter_video.filter_keywordFromTitle(videoList)
             self.postableList = videoList
         i = 1
         if(videoList!=''):
@@ -220,8 +225,7 @@ class crawlFromDouyin():
                     continue
                 # 获取准确的可下载的视频链接
                 videoUrl = self.browser1.find_element_by_xpath("//video").get_attribute("src")
-                print(videoUrl)
-                downVideo(urlpath=videoUrl, name=str(i), dstDirPath="E:\\test\\")
+                downVideo(urlpath=videoUrl, name=str(i), dstDirPath=videoDirPath)
                 # 上传
                 print("上传视频: ", i)
                 poster.post_videoSingle(str(i) + '.mp4', title0=item[0])

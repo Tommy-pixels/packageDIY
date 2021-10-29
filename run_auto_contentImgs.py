@@ -12,9 +12,6 @@ from .imagesRef.Processing import Processing
 
 def run(proj_absPath, oriDomain, database, tableNameList, maskFilt=False):
     updateTime = tools.getCurDate()
-    '''
-    oriDomain = 'huxiu'
-    '''
     setting = {
         # 爬取下来的图片的存放路径
         'imgsCrawledDir': proj_absPath + '\\assets\imgsCrawled\\' + updateTime + '\\' + oriDomain + '\\',

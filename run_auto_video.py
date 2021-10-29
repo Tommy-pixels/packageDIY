@@ -35,6 +35,7 @@ def check_videoRepeat(posted_dbOp, videoInfo):
     else:
         return False
 
+# 爬取源1 bilibili
 def run_bilibili(setting):
     # setting['videoDirPath'] = 'E:\\test\\'
     dbOperator = dbOp.dbOperator('bilibilidatabase')    # 获取未上传的数据
@@ -118,31 +119,5 @@ def run_bilibili(setting):
         print("数据库为空，无待上传的数据")
     globalTools.finishTask()
 
-def run():
-    updateTime = tools.getCurDate()
-    setting = {
-        # 爬取下来的图视频的存放路径
-        # 'videoCrawledDir': proj_absPath + '\\assets\\viedosCrawled\\' + updateTime + '\\' + oriDomain + '\\'
-        'videoCrawledDir': 'E:\\douyinVideos\\'
-    }
 
-    # 判断配置里的目录是否存在，不存在则创建对应目录
-    for item in setting.values():
-        tools.checkACreateDir(item)
-    urlList_douyin = [
-        "https://www.douyin.com/search/%E8%82%A1?publish_time=1&sort_type=2&source=normal_search&type=video",
-        "https://www.douyin.com/search/%E8%82%A1%E7%A5%A8?publish_time=1&sort_type=2&source=normal_search&type=video",
-        "https://www.douyin.com/search/%E6%B6%A8%E8%B7%8C?publish_time=1&sort_type=2&source=normal_search&type=video",
-        "https://www.douyin.com/search/%E5%A4%A7%E7%9B%98?publish_time=1&sort_type=2&source=normal_search&type=video",
-        "https://www.douyin.com/search/B%E8%82%A1?publish_time=1&sort_type=2&source=normal_search&type=video",
-        "https://www.douyin.com/search/%E7%9F%AD%E7%BA%BF?publish_time=1&sort_type=2&source=normal_search&type=video",
-        "https://www.douyin.com/search/%E6%8C%87%E6%95%B0?publish_time=1&sort_type=2&source=normal_search&type=video"
-    ]
-
-    # 抖音视频的爬取及上传
-    spider_douyin = bySelenium.crawlFromDouyin()
-    for url in urlList_douyin:
-        lis = spider_douyin.enterIndexDouyin(move2BottomTimes=1000, douyinUrlIndex=url)
-        postResult = spider_douyin.getRealVideo(lis)
-    globalTools.finishTask()
 
