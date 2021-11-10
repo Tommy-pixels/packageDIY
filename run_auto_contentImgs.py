@@ -63,25 +63,49 @@ def run(proj_absPath, oriDomain, database, tableNameList, maskFilt=False):
 
     # 3 过滤 (关键词过滤、空文件过滤、水印识别及处理）
     print("下面开始过滤操作")
-    filter = Filter.imgsFilter(
-        imgsDontHasWaterMaskDir=setting['imgsDirDontHasWaterMask'],
-        imgDirHasWaterMask=setting['imgsDirHasWaterMask'],
-        imgCleanedStep1=setting['imgsCleanedDir'],
-        dirOriPath=setting['imgsReconizedDir']
-        # dirOriPath=setting['imgsCrawledDir']
-    )
     if(maskFilt):
-        filter.run()  # 这里再做一下优化
+        filter = Filter.imgsFilter(
+            imgsDontHasWaterMaskDir=setting['imgsDirDontHasWaterMask'],
+            imgDirHasWaterMask=setting['imgsDirHasWaterMask'],
+            imgCleanedStep1=setting['imgsCleanedDir'],
+            dirOriPath=setting['imgsReconizedDir']
+            # dirOriPath=setting['imgsCrawledDir']
+        )
+        print("有水印处理的过滤操作")
+        filter.run_hasmaskOp()  # 这里再做一下优化
+        # 处理网的水印图片位置分别在  imgsDirDontHasWaterMask 和 imgsDirHasWaterMask
+        print("过滤操作完成")
+
+        # 4 resize指定目录下的图片 默认为宽度小1000
+        setImgSizer0 = Processing.ImgsSetSize(setting['imgsDirDontHasWaterMask'])
+        setImgSizer0.resize_byDir()
+        setImgSizer1 = Processing.ImgsSetSize(setting['imgsDirHasWaterMask'])
+        setImgSizer1.resize_byDir()
+
+        # 5 创建图片发送的poster 传送处理完成的图片
+        # 传送内容图
+        imgposter0 = Poster.ImgPoster(imgDirPath=setting['imgsDirDontHasWaterMask'])
+        imgposter0.updateImgs()
+        imgposter1 = Poster.ImgPoster(imgDirPath=setting['imgsDirHasWaterMask'])
+        imgposter1.updateImgs()
     else:
+        filter = Filter.imgsFilter(
+            imgsDontHasWaterMaskDir=setting['imgsDirDontHasWaterMask'],
+            imgDirHasWaterMask=setting['imgsDirHasWaterMask'],
+            imgCleanedStep1=setting['imgsCleanedDir'],
+            dirOriPath=setting['imgsReconizedDir']
+            # dirOriPath=setting['imgsCrawledDir']
+        )
+        print("无水印处理的过滤操作")
         filter.run_nomaskOp()
-    print("过滤操作完成")
+        print("过滤操作完成")
+        # 4 resize指定目录下的图片 默认为宽度小1000
+        setImgSizer = Processing.ImgsSetSize(setting['imgsCleanedDir'])
+        setImgSizer.resize_byDir()
 
-    # 4 resize指定目录下的图片 默认为宽度小1000
-    setImgSizer = Processing.ImgsSetSize(setting['imgsCleanedDir'])
-    setImgSizer.resize_byDir()
+        # 5 创建图片发送的poster 传送处理完成的图片
+        # 传送内容图
+        imgposter0 = Poster.ImgPoster(imgDirPath=setting['imgsCleanedDir'])
+        imgposter0.updateImgs()
 
-    # 5 创建图片发送的poster 传送处理完成的图片
-    # 传送内容图
-    imgposter0 = Poster.ImgPoster(imgDirPath=setting['imgsCleanedDir'])
-    imgposter0.updateImgs()
     globalTools.finishTask()

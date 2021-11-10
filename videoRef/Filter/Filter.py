@@ -76,15 +76,24 @@ class videoFilter():
         day = date_str[2]
         self.filterwordList.append(year + month + day)
         self.filterwordList.append(month + day)
-        self.filterwordList.append(month + str(int(day) - 1))
-        self.filterwordList.append(month + str(int(day) + 1))
+
+
+        def translate(day):
+            if (int(day) < 10):
+                return '0' + str(day)
+            else:
+                return str(day)
+
+        self.filterwordList.append(month + str(translate(int(day) - 1)))
+        self.filterwordList.append(month + str(translate(int(day) + 1)))
         self.filterwordList.append(month + '.' + day)
-        self.filterwordList.append(month + '.' + str(int(day) - 1))
-        self.filterwordList.append(month + '.' + str(int(day) + 1))
+        self.filterwordList.append(month + '.' + str(int(day)))
+        self.filterwordList.append(month + '.' + str(translate(int(day) - 1)))
+        self.filterwordList.append(month + '.' + str(translate(int(day) + 1)))
         self.filterwordList.append(month + '-' + day)
         self.filterwordList.append(month + '月' + day)
         self.filterwordList.append(month + '/' + day)
-        self.filterwordList.append(month + '/' + str(int(day) - 1))
+        self.filterwordList.append(month + '/' + str(translate(int(day) - 1)))
         self.filterwordList.append(day + '日')
         self.filterwordList_bilibili = [
             '第一集', '第七集', '第三课'

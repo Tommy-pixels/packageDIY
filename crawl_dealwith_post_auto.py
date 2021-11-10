@@ -156,7 +156,7 @@ class TimedTask4AutoDealwithPost(TimedTaskBasic):
         elif(self.setting["whichKind"] == 'relativeParagraph'):
             rarp.run(setting=self.setting)
         elif(self.setting["whichKind"] == 'contentImgs'):
-            raci.run(proj_absPath=self.setting["proj_absPath"], oriDomain=self.setting["oriDomain"], database=self.setting['databaseName'], tableNameList=self.setting['tableName'])
+            raci.run(proj_absPath=self.setting["proj_absPath"], oriDomain=self.setting["oriDomain"], database=self.setting['databaseName'], tableNameList=self.setting['tableName'], maskFilt=self.setting['maskFilt'])
         elif(self.setting["whichKind"] == 'thumbnailImgs'):
             rati.run(proj_absPath=self.setting["proj_absPath"], oriDomain=self.setting["oriDomain"], database=self.setting['databaseName'], tableNameList=self.setting['tableName'])
         elif (self.setting['whichKind'] == 'video' and self.setting['crawlMethod'] == 'Selenium'):

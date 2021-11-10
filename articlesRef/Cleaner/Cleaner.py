@@ -21,9 +21,11 @@ class Cleaner():
             self.filterWord.append(str(i) + '。')
             self.filterWord.append(str(i) + '，')
             self.filterWord.append(str(i) + '、')
+            self.filterWord.append(str(i) + '：')
             self.filterWord.append('（' + str(i) + '）')
             self.filterWord.append(str(i) + '）')
             self.filterWord.append('(' + str(i) + ')')
+            self.filterWord.append('[' + str(i) + ']')
             self.filterWord.append('【' + str(i) + '】')
         for item in self.numList1:
             self.filterWord.append(item + '、')

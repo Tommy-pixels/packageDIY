@@ -1,5 +1,6 @@
-import os, time
+import os, time, re
 import hashlib, base64
+from selenium import webdriver
 
 # 获取当前根目录路径
 def getCurOriPath():
@@ -24,7 +25,6 @@ def delVideoSingle(filePath):
     os.remove(filePath)
 
 
-
 # 获取当前日期
 def getCurDate():
     return time.strftime("%Y%m%d", time.localtime())
@@ -34,9 +34,94 @@ def getSecondByDate(date):
     b = time.strptime(date, '%Y%m%d %H:%M:%S')
     return time.mktime(b)
 
-# 模拟浏览器打开指定连接并且获取header和cookie并输出
-def getCookieandHeader(url):
-    pass
+# 通过selenium获取指定信息的类
+class GetParams_Selenium:
+    def __init__(self, driverPath=r"E:\Projects\webDriver\\chrome\\chromedriver.exe"):
+        option = webdriver.ChromeOptions()
+        option.add_experimental_option('excludeSwitches', ['enable-automation'])
+        option.add_experimental_option('useAutomationExtension', False)
+        self.browser = webdriver.Chrome(driverPath, options=option)
+
+    @classmethod
+    def getCookies(self, url, browser=None):
+        '''
+        类方法，以对象形式输出指定链接返回的cookies
+        :param url: 待打开的链接
+        :param browser: 浏览器引擎
+        :return: cookies对象
+        '''
+        browser.get(url)
+        time.sleep(1)
+        # 获取cookie
+        dictCookies = browser.get_cookies()
+        cookies = {}
+        for item in dictCookies:
+            key = item['name']
+            cookies[str(key)] = str(item['value'])
+        return cookies
+
+    def getHeaders(self, url, browser):
+        pass
+
+    def get_params(self, url):
+        cookies = self.getCookies(url, self.browser)
+        headers = {}
+        return {
+            'cookies': cookies
+        }
+
+
+    def closeBrowser(self, browser=None):
+        '''
+        关闭指定浏览器，若浏览器为None则关闭对象浏览器
+        :param browser:
+        :return: None
+        '''
+        if(browser):
+            browser.close()
+        else:
+            self.browser.close()
+
+
+# 字符串正则处理类
+class Handler_String_ByRe:
+    def extract_StrByRe(self, string, patternStr=r'[[](.*?)[]]'):
+        '''
+        正则匹配字符串获取指定内容(匹配[]包括这的内容)
+        :param string: 待匹配的字符串
+        :param patternStr: 正则表达式模式
+        :return: 列表
+        '''
+        pattern = re.compile(patternStr, re.S)  # 最小匹配
+        return re.findall(pattern, string)
+
+
+
+class Handle_PackageInfo:
+    '''
+        处理报文信息 如 cookie和headers字符串和对象的转换
+    '''
+    def translate_Cookies_Row2Obj(self, cookiesRow):
+        cookieList = cookiesRow.split(";")
+        self.cookies = {}
+        for cookieItem in cookieList:
+            i = cookieItem.strip().split("=")
+            k = i[0]
+            v = i[1]
+            self.cookies[k] = v
+        return self.cookies
+
+    def translate_Headers_Row2Obj(self, headersRow):
+        headerList = headersRow.split('\n')
+        self.headers = {}
+        for headerItem in headerList:
+            i = headerItem.strip().split(":")
+            if (i != ['']):
+                k = i[0]
+                v = i[1]
+                self.headers[k] = v
+        return self.headers
+
 
 # 加密类
 class Encode:
@@ -91,3 +176,4 @@ class Contraler_Time:
     def getSecondByDate(self, date):
         b = time.strptime(date, '%Y%m%d %H:%M:%S')
         return time.mktime(b)
+
