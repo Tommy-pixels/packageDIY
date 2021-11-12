@@ -38,12 +38,12 @@ def check_videoRepeat(posted_dbOp, videoInfo):
 # 爬取源1 bilibili
 def run_bilibili(setting):
     # setting['videoDirPath'] = 'E:\\test\\'
-    dbOperator = dbOp.dbOperator('bilibilidatabase')    # 获取未上传的数据
+    dbOperator = dbOp.dbOperator('videodatabase')    # 获取未上传的数据
     posted_dbOp = dbOp.dbOperator(databaseName='postedurldatabase')     # 连接上传过的的数据的数据库
     poster = VideoPoster(videoDirPath=setting['videoDirPath'], coverSavedPath=setting['coverSavedPath'])
     filter_video = videoFilter()
     # 获取最新爬取下来待上传的视频信息列表
-    sql = "SELECT title, avValue, videoUrl, pubdate FROM `bilibilidatabase`.`tb_videoInfo`;"
+    sql = "SELECT title, avValue, videoUrl, pubdate FROM `videodatabase`.`tb_bilibili_videoInfo`;"
     videoInfoList = dbOperator.getAllDataFromDB(sql)    # 未上传的数据
 
     i = 1
@@ -54,7 +54,7 @@ def run_bilibili(setting):
     for one in titlePostedList:
         titlePostedList_.append(one[0])
 
-    checkDate_time = int(dbOperator.getOneDataFromDB("SELECT * FROM `bilibilidatabase`.`tb_posted_timethenewest`;")[1])
+    checkDate_time = int(dbOperator.getOneDataFromDB("SELECT * FROM `videodatabase`.`tb_bilibili_posted_timethenewest`;")[1])
 
     # 过滤标题操作
     videoInfoList = filter_video.filter_keywordFromTitle(videoInfoList)
@@ -111,7 +111,7 @@ def run_bilibili(setting):
                 print("不符合条件，无法上传")
                 continue
         # 上传一切顺利，更新最新上传的视频的时间戳
-        sql_update = "UPDATE `bilibilidatabase`.`tb_posted_timethenewest` SET `timethenewest`=\'{}\' WHERE (`id` = '1');".format(
+        sql_update = "UPDATE `videodatabase`.`tb_bilibili_posted_timethenewest` SET `timethenewest`=\'{}\' WHERE (`id` = '1');".format(
             newestPubdate
         )
         dbOperator.insertData2DB(sql_update)

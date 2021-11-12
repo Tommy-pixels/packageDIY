@@ -1,4 +1,4 @@
-import os, time, re
+import os, time, re, requests
 import hashlib, base64
 from selenium import webdriver
 
@@ -42,7 +42,7 @@ class GetParams_Selenium:
         option.add_experimental_option('useAutomationExtension', False)
         self.browser = webdriver.Chrome(driverPath, options=option)
 
-    @classmethod
+
     def getCookies(self, url, browser=None):
         '''
         类方法，以对象形式输出指定链接返回的cookies
@@ -177,3 +177,18 @@ class Contraler_Time:
         b = time.strptime(date, '%Y%m%d %H:%M:%S')
         return time.mktime(b)
 
+# 下载类
+class Downloader:
+    # 已有图片链接下载图片的方法
+    def download_img(self, urlpath, imgname, dstDirPath):
+        '''
+        图片下载
+        :param urlpath: 可下载的图片资源链接
+        :param imgname: 保存图片为指定名字
+        :param dstDirPath: 图片保存目录位置，注意：最后要有\\
+        :return:
+        '''
+        r = requests.get(urlpath)
+        img = r.content  # 响应的二进制文件
+        with open(dstDirPath + str(imgname) + '.png', 'wb') as f:  # 二进制写入
+            f.write(img)

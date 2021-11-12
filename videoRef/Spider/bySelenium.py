@@ -13,7 +13,7 @@ from ..DatabaserOperator import databaseOperator as dbOp
 
 # 已有图片链接下载图片的方法
 def downVideo(urlpath, name, dstDirPath):
-    # 获取当前日期
+    print("下载： ", urlpath)
     r = requests.get(urlpath, verify=False)
     video = r.content       #响应的二进制文件
     with open(dstDirPath + str(name) + '.mp4','wb') as f:     #二进制写入
@@ -66,8 +66,8 @@ class crawlFromDouyin():
         # 滑块验证
         self.handleSlideCheck()
 
-        print("先手动登录")
-        sleep(60)
+        # print("先手动登录")
+        # sleep(60)
 
         # 等待某个元素是否出现
         WebDriverWait(self.browser, 10).until(
@@ -78,7 +78,12 @@ class crawlFromDouyin():
         # 这里获取的ul用于判断
         ul = self.browser.find_element_by_xpath("//ul[@class='_3636d166d0756b63d5645bcd4b9bcac4-scss']")
         liList = ul.find_elements_by_xpath("./li")
-        liFirstTitle = liList[0].find_element_by_xpath(".//a[@class='caa4fd3df2607e91340989a2e41628d8-scss a074d7a61356015feb31633ad4c45f49-scss _9c976841beef15a22bcd1540d1e84c02-scss']")
+
+        try:
+            liFirstTitle = liList[0].find_element_by_xpath(".//a[@class='caa4fd3df2607e91340989a2e41628d8-scss a074d7a61356015feb31633ad4c45f49-scss _9c976841beef15a22bcd1540d1e84c02-scss']") # 获取标题
+        except Exception as e:
+            liFirstTitle = '空'
+
         liEffectiveList = []  # 可上传的视频信息列表
         # 判断是否有上一次爬取
         if(self.theNewestTitle!=''):
@@ -88,8 +93,10 @@ class crawlFromDouyin():
                 # 说明有更新
                 for li in liList:
                     # 每获取一个则下载上传一个
-                    a = li.find_element_by_xpath(
-                        ".//a[@class='caa4fd3df2607e91340989a2e41628d8-scss a074d7a61356015feb31633ad4c45f49-scss _9c976841beef15a22bcd1540d1e84c02-scss']")
+                    try:
+                        a = li.find_element_by_xpath(".//a[@class='caa4fd3df2607e91340989a2e41628d8-scss a074d7a61356015feb31633ad4c45f49-scss _9c976841beef15a22bcd1540d1e84c02-scss']")
+                    except Exception as e:
+                        continue
                     publishTime = li.find_element_by_xpath(
                         ".//span[@class='b32855717201aaabd3d83c162315ff0a-scss']").text
                     timeLength = li.find_element_by_xpath(".//span[@class='d170ababc38fdbf760ca677dbaa9206a-scss']")
@@ -143,8 +150,8 @@ class crawlFromDouyin():
                     continue
                 sleep(5)
             return liEffectiveList
-    # 处理滑块验证的方法：1 直接关闭 2 滑动验证
 
+    # 处理滑块验证的方法：1 直接关闭 2 滑动验证
     def handleSlideCheck(self):
         sleep(5)
         try:
@@ -224,7 +231,9 @@ class crawlFromDouyin():
                     # 判断不是当天的视频则跳过
                     continue
                 # 获取准确的可下载的视频链接
-                videoUrl = self.browser1.find_element_by_xpath("//video").get_attribute("src")
+
+                videoUrl = self.browser1.find_element_by_xpath("//video//source").get_attribute("src")
+
                 downVideo(urlpath=videoUrl, name=str(i), dstDirPath=videoDirPath)
                 # 上传
                 print("上传视频: ", i)
