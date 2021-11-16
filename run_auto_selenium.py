@@ -19,4 +19,6 @@ def run_douyin(proj_absPath, crawlUrl_list, oriDomain='douyin'):
     for url in crawlUrl_list:
         lis = spider_douyin.enterIndexDouyin(move2BottomTimes=1, douyinUrlIndex=url)
         postResult = spider_douyin.getRealVideo(lis, videoDirPath, coverSavedPath)
+    spider_douyin.browser0.close()
+    spider_douyin.browser1.close()
     globalTools.finishTask()
