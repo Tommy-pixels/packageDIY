@@ -15,7 +15,7 @@ def run_douyin(proj_absPath, crawlUrl_list, oriDomain='douyin'):
     tools.checkACreateDir(captchaPath)
 
     # 抖音视频的爬取及上传
-    spider_douyin = bySelenium.crawler_Douyin(captchaPath=captchaPath)
+    spider_douyin = bySelenium.crawler_Douyin(captchaPath=captchaPath, videoDirPath=videoDirPath)
     for url in crawlUrl_list:
         lis = spider_douyin.enterIndexDouyin(move2BottomTimes=1, douyinUrlIndex=url)
         postResult = spider_douyin.getRealVideo(lis, videoDirPath, coverSavedPath)

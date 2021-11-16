@@ -68,7 +68,7 @@ class VideoPoster:
         coverSavedPath = self.coverSavedPath
         videoPath = self.videoDirPath + videoName
         print("处理的路径： ", videoPath)
-        imgfil = Filter.videoFilter()
+        imgfil = Filter.videoFilter(dirOriPath=self.videoDirPath)
         # imgf = self.translateFrom_Ndarray2TIWrapper(imgfil.getCoverImg(videoPath, coverSavedPath))  # 该获取截图的方法无效——无法上传
         # 判断是否满足条件
         if(imgfil.checkIfTimeLength(videoPath)):

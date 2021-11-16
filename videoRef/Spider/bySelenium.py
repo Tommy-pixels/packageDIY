@@ -24,9 +24,9 @@ def downVideo(urlpath, name, dstDirPath):
 # --------------------------- 爬取抖音视频的类 ----------------------------------
 
 class crawler_Douyin:
-    def __init__(self, captchaPath, chromeDriverPath=r'E:\Projects\webDriver\\chrome\\chromedriver.exe'):
+    def __init__(self, captchaPath, videoDirPath, chromeDriverPath=r'E:\Projects\webDriver\\chrome\\chromedriver.exe'):
         self.dboperator = dbOp.dbOperator(databaseName='postedurldatabase')
-        self.filter = videoFilter()
+        self.filter = videoFilter(dirOriPath=videoDirPath)
 
         option = webdriver.ChromeOptions()
         option.add_experimental_option('excludeSwitches', ['enable-automation'])
