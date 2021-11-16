@@ -427,34 +427,6 @@ def cleanRepeated(lis):
             result.append(item)
     return result
 
-# 滑块验证 输出水平移动的距离 计算坐标的偏移量
-# templatePath 滑块 , targetPath 背景模板
-def sliderChecksetMovement(elWidth, templatePath='E:\Projects\packageDIY\\videoRef\\assets\\template.png', targetPath='E:\Projects\packageDIY\\videoRef\\assets\\target.png'):
-    target_rgb = cv2.imdecode(np.fromfile(targetPath, dtype=np.uint8), -1)
-    target_gray = cv2.cvtColor(target_rgb, cv2.COLOR_BGR2GRAY)
-    template_rgb = cv2.imread(templatePath, 0)
-    ori_width = template_rgb.shape[1]
-    ori_height = template_rgb.shape[0]
-    res = cv2.matchTemplate(target_gray, template_rgb, cv2.TM_CCOEFF_NORMED)
-
-    # 给匹配到的位置画个圈
-    loc = np.where(res >= 0.5)  # Store the coordinates of matched area in a numpy array
-    x = loc[0]
-    y = loc[1]
-
-    w, h = target_gray.shape[::-1]
-    # Draw a rectangle around the matched region.
-    if (len(x) and len(y)):
-        for pt in zip(*loc[::-1]):
-            # pt[0]表示水印位置所在的像素高度
-            cv2.rectangle(template_rgb, pt, (pt[0] + w, pt[1] + h), (0, 255, 255), 2)
-            # Show the final image with the matched area.
-            cv2.imwrite(templatePath, template_rgb)
-
-    value = cv2.minMaxLoc(res)
-    # (因为下载的图片跟网页上的图片是有缩放的)所以要根据比例计算网页端需要移动的偏移量
-    effectiveVal = value[2][0] * elWidth / ori_width
-    return effectiveVal
 
 
 # 针对哔哩哔哩网站

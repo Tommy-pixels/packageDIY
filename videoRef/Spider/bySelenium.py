@@ -1,6 +1,6 @@
 from selenium import webdriver
 from time import sleep
-import pymysql, time, requests, openpyxl, pyautogui
+import requests
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -10,6 +10,7 @@ from ..Poster.Poster import VideoPoster
 from ..Filter.Filter import videoFilter
 from ..universalTools import tools
 from ..DatabaserOperator import databaseOperator as dbOp
+from globalTools import douyinCrack
 
 # 已有图片链接下载图片的方法
 def downVideo(urlpath, name, dstDirPath):
@@ -21,68 +22,67 @@ def downVideo(urlpath, name, dstDirPath):
     r.close()   # 关闭很重要，确保不要过多的连接
 
 # --------------------------- 爬取抖音视频的类 ----------------------------------
-'''
-    从抖音下载视频
-    参数：
-'''
-class crawlFromDouyin():
-    def __init__(self):
+
+class crawler_Douyin:
+    def __init__(self, captchaPath, chromeDriverPath=r'E:\Projects\webDriver\\chrome\\chromedriver.exe'):
         self.dboperator = dbOp.dbOperator(databaseName='postedurldatabase')
-        option = webdriver.ChromeOptions()
-        option.add_experimental_option('excludeSwitches', ['enable-automation'])
-        # option.add_experimental_option('useAutomationExtension', False)
-        option.add_argument('--disable-blink-features=AutomationControlled')
-        self.browser = webdriver.Chrome(executable_path="E:\Projects\webDriver\\chrome\\chromedriver.exe", options=option)
-        self.browser1 = webdriver.Chrome(executable_path="E:\Projects\webDriver\\chrome\\chromedriver.exe", options=option)
-        self.browser.get('https://www.douyin.com')
-        self.browser1.get('https://www.douyin.com')
-        self.setCookies()
-        self.browser.get('https://www.douyin.com')
-        self.browser1.get('https://www.douyin.com')
-        sleep(2)
-        self.handleSlideCheck() # 滑块验证
-        self.theNewestTitle = ''
         self.filter = videoFilter()
 
-    def setCookies(self):
-        cookieList = self.browser.get_cookies()
-        cookieList1 = self.browser1.get_cookies()
-        for cookie in cookieList:
-            self.browser.add_cookie(cookie)
-        for cookie in cookieList1:
-            self.browser.add_cookie(cookie)
+        option = webdriver.ChromeOptions()
+        option.add_experimental_option('excludeSwitches', ['enable-automation'])
+        option.add_argument('--disable-blink-features=AutomationControlled')
+
+        self.browser0 = webdriver.Chrome(executable_path=chromeDriverPath, options=option)
+        self.browser1 = webdriver.Chrome(executable_path=chromeDriverPath, options=option)
+        self.browser0.get('https://www.douyin.com')
+        self.browser1.get('https://www.douyin.com')
+        sleep(2)
+        self.douyinCracker0 = douyinCrack.DouyinCrack(captchaDstDirPath=captchaPath)
+        self.douyinCracker1 = douyinCrack.DouyinCrack(captchaDstDirPath=captchaPath)
+        sleep(2)
+
+        self.handleSlideCheck() # 滑块验证
+        self.theNewestTitle = ''
+
+        # 滑块验证参数
+        self.captchaPath = captchaPath
+
 
     # 首次进入 move2BottomTimes 为向下滑动的次数 默认350
     def enterIndexDouyin(self, move2BottomTimes, douyinUrlIndex='https://www.douyin.com/search/%E8%82%A1%E7%A5%A8?publish_time=1&sort_type=2&source=normal_search&type=video'):
-        self.browser.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
+        self.browser0.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
             'source': 'Object.defneProperty(navigator, "webdriver", {get: () => undefined})'
         })
-        self.browser.get(douyinUrlIndex)
+        self.browser0.get(douyinUrlIndex)
         # 滑块验证
         self.handleSlideCheck()
 
         # 2.通过浏览器向服务器发送URL请求
-        self.browser.get(douyinUrlIndex)
+        self.browser0.get(douyinUrlIndex)
         # 滑块验证
         self.handleSlideCheck()
 
-        # print("先手动登录")
-        # sleep(60)
-
         # 等待某个元素是否出现
-        WebDriverWait(self.browser, 10).until(
+        WebDriverWait(self.browser0, 10).until(
             # EC.text_to_be_present_in_element((By.XPATH, ''))
             EC.presence_of_element_located((By.XPATH, "//ul[@class='_3636d166d0756b63d5645bcd4b9bcac4-scss']"))
         )
         self.handleSlideCheck()
         # 这里获取的ul用于判断
-        ul = self.browser.find_element_by_xpath("//ul[@class='_3636d166d0756b63d5645bcd4b9bcac4-scss']")
-        liList = ul.find_elements_by_xpath("./li")
+        try:
+            ul = self.browser0.find_element_by_xpath("//ul[@class='_3636d166d0756b63d5645bcd4b9bcac4-scss']")
+            liList = ul.find_elements_by_xpath("./li")
+        except Exception as e:
+            # 滑块验证
+            self.handleSlideCheck()
+
 
         try:
             liFirstTitle = liList[0].find_element_by_xpath(".//a[@class='caa4fd3df2607e91340989a2e41628d8-scss a074d7a61356015feb31633ad4c45f49-scss _9c976841beef15a22bcd1540d1e84c02-scss']") # 获取标题
         except Exception as e:
             liFirstTitle = '空'
+            # 滑块验证
+            self.handleSlideCheck()
 
         liEffectiveList = []  # 可上传的视频信息列表
         # 判断是否有上一次爬取
@@ -96,10 +96,15 @@ class crawlFromDouyin():
                     try:
                         a = li.find_element_by_xpath(".//a[@class='caa4fd3df2607e91340989a2e41628d8-scss a074d7a61356015feb31633ad4c45f49-scss _9c976841beef15a22bcd1540d1e84c02-scss']")
                     except Exception as e:
+                        # 滑块验证
+                        self.handleSlideCheck()
                         continue
-                    publishTime = li.find_element_by_xpath(
-                        ".//span[@class='b32855717201aaabd3d83c162315ff0a-scss']").text
-                    timeLength = li.find_element_by_xpath(".//span[@class='d170ababc38fdbf760ca677dbaa9206a-scss']")
+                    try:
+                        publishTime = li.find_element_by_xpath(".//span[@class='b32855717201aaabd3d83c162315ff0a-scss']").text
+                        timeLength = li.find_element_by_xpath(".//span[@class='d170ababc38fdbf760ca677dbaa9206a-scss']")
+                    except Exception as e:
+                        # 滑块验证
+                        self.handleSlideCheck()
                     title = a.text
                     videoPageUrl = a.get_attribute("href")
 
@@ -126,7 +131,7 @@ class crawlFromDouyin():
             # 向下滚动
             self.moveToBottom(move2BottomTimes)
 
-            ul = self.browser.find_element_by_xpath("//ul[@class='_3636d166d0756b63d5645bcd4b9bcac4-scss']")
+            ul = self.browser0.find_element_by_xpath("//ul[@class='_3636d166d0756b63d5645bcd4b9bcac4-scss']")
             liList = ul.find_elements_by_xpath("./li")
             self.liList = liList
             for li in liList:
@@ -155,47 +160,14 @@ class crawlFromDouyin():
     def handleSlideCheck(self):
         sleep(5)
         try:
-            slider = self.browser.find_element_by_xpath("//div[@class='captcha_verify_bar sc-cMljjf eBYEht']")
-            sliderTemplateUrl = self.browser.find_element_by_xpath("//img[@id='captcha-verify-image']").get_attribute('src')
-            tempWidth = self.browser.find_element_by_xpath("//img[@id='captcha-verify-image']").size['width']
-            sliderTargetUrl = self.browser.find_element_by_xpath("//img[@class='captcha_verify_img_slide react-draggable sc-VigVT ggNWOG']").get_attribute('src')
-            print("出现滑块验证， 下载对应图片")
-            tools.downimg(urlpath=sliderTemplateUrl, imgname='template', dstDirPath='E:\Projects\packageDIY\\videoRef\\assets\\')
-            tools.downimg(urlpath=sliderTargetUrl, imgname='target', dstDirPath='E:\Projects\packageDIY\\videoRef\\assets\\')
-            x = tools.sliderChecksetMovement(elWidth=tempWidth)
-            print(x)
-            # self.checkSlide(browser=self.browser, x=x)
+            self.EffectiveCookies0 = self.douyinCracker0.handle_SlideCheck(self.browser0)
         except Exception as e:
-            slider = ''
-            print(e)
-            print("browser 无滑块出现")
+            print("browser0 无滑块出现")
 
         try:
-            slider1 = self.browser1.find_element_by_xpath("//div[@class='captcha_verify_bar sc-cMljjf eBYEht']")
-            sliderTemplateUrl = self.browser1.find_element_by_xpath("//img[@id='captcha-verify-image']").get_attribute(
-                'src')
-            tempWidth = self.browser1.find_element_by_xpath("//img[@id='captcha-verify-image']").size['width']
-            sliderTargetUrl = self.browser1.find_element_by_xpath(
-                "//img[@class='captcha_verify_img_slide react-draggable sc-VigVT ggNWOG']").get_attribute('src')
-            print("出现滑块验证， 下载对应图片")
-            tools.downimg(urlpath=sliderTemplateUrl, imgname='template',
-                          dstDirPath='E:\Projects\packageDIY\\videoRef\\assets\\')
-            tools.downimg(urlpath=sliderTargetUrl, imgname='target',
-                          dstDirPath='E:\Projects\packageDIY\\videoRef\\assets\\')
-            x = tools.sliderChecksetMovement(elWidth=tempWidth)
-            print("spi1", x)
-            # self.checkSlide(browser=self.browser1, x=x)
-
+            self.EffectiveCookies1 = self.douyinCracker1.handle_SlideCheck(self.browser1)
         except Exception as e:
-            print(e)
-            slider1 = ''
             print("browser1 无滑块出现")
-        # 下面这种是不滑动直接关闭的方法
-        # if(slider):
-        #     # 1 直接点关闭
-        #     slider.click()
-        # if(slider1):
-        #     slider1.click()
 
 
     def getRealVideo(self, videoList_, videoDirPath, coverSavedPath):
@@ -207,11 +179,12 @@ class crawlFromDouyin():
             # 过滤标题操作
             videoList = filter_video.filter_keywordFromTitle(videoList)
         else:
-            videoList = self.filter.filter_posted(self.enterIndexDouyin())
-            videoList = tools.cleanRepeated(videoList)  # 去重
-            # 过滤标题操作
-            videoList = filter_video.filter_keywordFromTitle(videoList)
-            self.postableList = videoList
+            # videoList = self.filter.filter_posted(self.enterIndexDouyin())
+            # videoList = tools.cleanRepeated(videoList)  # 去重
+            # # 过滤标题操作
+            # videoList = filter_video.filter_keywordFromTitle(videoList)
+            # self.postableList = videoList
+            return None
         i = 1
         if(videoList!=''):
             for item in videoList:
@@ -258,8 +231,8 @@ class crawlFromDouyin():
         # 以当前位置为参照向下滚动
         # self.browser.execute_script('window.scrollBy(0 ,1000)') # 从当前位置向下滚动1000px
         for i in range(0, times):
-            self.browser.find_element_by_tag_name('body').send_keys(Keys.ARROW_DOWN)  # 在这里使用模拟的下方向键
-            time.sleep(0.01)
+            self.browser0.find_element_by_tag_name('body').send_keys(Keys.ARROW_DOWN)  # 在这里使用模拟的下方向键
+            sleep(0.01)
 
     # 滑块验证 XX 滑块验证有点问题， 手动验证吧，自动化滑块验证还做不了
     # 遇到的问题，滑块验证采用拼图的形式，需要先检验待拼的位置坐标才行

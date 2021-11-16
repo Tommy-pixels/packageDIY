@@ -36,22 +36,21 @@ def getSecondByDate(date):
 
 # 通过selenium获取指定信息的类
 class GetParams_Selenium:
-    def __init__(self, driverPath=r"E:\Projects\webDriver\\chrome\\chromedriver.exe"):
-        option = webdriver.ChromeOptions()
-        option.add_experimental_option('excludeSwitches', ['enable-automation'])
-        option.add_experimental_option('useAutomationExtension', False)
-        self.browser = webdriver.Chrome(driverPath, options=option)
+    def __init__(self, *driverPath):
+        if(driverPath!=()):
+            option = webdriver.ChromeOptions()
+            option.add_experimental_option('excludeSwitches', ['enable-automation'])
+            option.add_experimental_option('useAutomationExtension', False)
+            self.browser = webdriver.Chrome(driverPath, options=option)
 
 
-    def getCookies(self, url, browser=None):
+    def getCookies(self, *url, browser):
         '''
         类方法，以对象形式输出指定链接返回的cookies
         :param url: 待打开的链接
         :param browser: 浏览器引擎
         :return: cookies对象
         '''
-        browser.get(url)
-        time.sleep(1)
         # 获取cookie
         dictCookies = browser.get_cookies()
         cookies = {}
@@ -60,27 +59,40 @@ class GetParams_Selenium:
             cookies[str(key)] = str(item['value'])
         return cookies
 
-    def getHeaders(self, url, browser):
-        pass
+    def del_all_cookies(self):
+        self.browser.delete_all_cookies()
 
-    def get_params(self, url):
-        cookies = self.getCookies(url, self.browser)
-        headers = {}
-        return {
-            'cookies': cookies
-        }
+    def get_params(self, url, *browser):
+        if(browser==()):
+            self.browser.get(url)
+            time.sleep(1)
+            cookies = self.getCookies(url, self.browser)
+            headers = {}
+            return {
+                'cookies': cookies,
+                'headers': headers
+            }
+        else:
+            browser.get(url)
+            time.sleep(1)
+            cookies = self.getCookies(url, browser)
+            headers = {}
+            return {
+                'cookies': cookies,
+                'headers': headers
+            }
 
 
-    def closeBrowser(self, browser=None):
+    def closeBrowser(self, *browser):
         '''
         关闭指定浏览器，若浏览器为None则关闭对象浏览器
         :param browser:
         :return: None
         '''
-        if(browser):
-            browser.close()
-        else:
+        if(browser==()):
             self.browser.close()
+        else:
+            browser.close()
 
 
 # 字符串正则处理类
@@ -192,3 +204,5 @@ class Downloader:
         img = r.content  # 响应的二进制文件
         with open(dstDirPath + str(imgname) + '.png', 'wb') as f:  # 二进制写入
             f.write(img)
+
+    # 下载视频
