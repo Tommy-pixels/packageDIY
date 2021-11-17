@@ -7,7 +7,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from ..Poster.Poster import VideoPoster
-from ..Filter.Filter import videoFilter
+from ..Filter.Filter import douyinFilter
 from ..universalTools import tools
 from ..DatabaserOperator import databaseOperator as dbOp
 from globalTools import douyinCrack
@@ -26,7 +26,7 @@ def downVideo(urlpath, name, dstDirPath):
 class crawler_Douyin:
     def __init__(self, captchaPath, videoDirPath, chromeDriverPath=r'E:\Projects\webDriver\\chrome\\chromedriver.exe'):
         self.dboperator = dbOp.dbOperator(databaseName='postedurldatabase')
-        self.filter = videoFilter(dirOriPath=videoDirPath)
+        self.filter = douyinFilter(dirOriPath=videoDirPath)
 
         option = webdriver.ChromeOptions()
         option.add_experimental_option('excludeSwitches', ['enable-automation'])
@@ -172,7 +172,7 @@ class crawler_Douyin:
 
     def getRealVideo(self, videoList_, videoDirPath, coverSavedPath):
         poster = VideoPoster(videoDirPath=videoDirPath, coverSavedPath=coverSavedPath)
-        filter_video = videoFilter()
+        filter_video = douyinFilter(dirOriPath=videoDirPath)
         if (videoList_):
             videoList = self.filter.filter_posted(videoList_) # 过滤掉上传过的视频
             videoList = tools.cleanRepeated(videoList)  # 去重

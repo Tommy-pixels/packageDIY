@@ -53,7 +53,7 @@ class videoFilter():
         self.videoPathList = []
         self.dbOperator = dbOp.dbOperator(databaseName='postedurldatabase')
         self.filterwordList = [
-            '早评', '午评', '午间点评', '点评', '午间短评',
+            '早评', '午评', '午间点评', '点评', '午间短评', '评述',
             '昨夜', '昨天', '今日', '今天', '明天', '明日', '十年未来',
             '周一', '周二', '周三', '周四', '周五', '周六', '周日', '下周', '本周', '现状', '本月',
             '九月', '十月', '十一月', '十二月', '一月',
@@ -63,7 +63,6 @@ class videoFilter():
             '银行券商',
             '主力拉升', '走势', '大盘', '小幅拉升', '上涨行情', '拉升', '窄幅震荡',
             '值得长期持有', '将迎来', '股价大涨', '再创历史新高', '走强', '反弹'
-
         ]
         # 股票名
         stocksnamecodeList = self.dbOperator.getAllDataFromDB(sql="SELECT `name` FROM stocksnamecode.tb_namecode;")
@@ -95,6 +94,8 @@ class videoFilter():
         self.filterwordList.append(month + '/' + day)
         self.filterwordList.append(month + '/' + str(translate(int(day) - 1)))
         self.filterwordList.append(day + '日')
+        self.filterwordList.append(str(translate(int(day) - 1)) + '日')
+
         self.filterwordList_bilibili = [
             '第一集', '第七集', '第三课'
         ]
@@ -189,6 +190,14 @@ class videoFilter():
         return fl_videoInfoList
 
 
+# 针对抖音的Filter
+class douyinFilter(videoFilter):
+    def __init__(self, dirOriPath):
+        videoFilter.__init__(self, dirOriPath=dirOriPath)
+        douyinFilterWordList = [
+            '#搞笑', '#动漫', '#物价'
+        ]
+        self.filterwordList.extend(douyinFilterWordList)
 
 
 
