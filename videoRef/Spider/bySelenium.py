@@ -7,15 +7,16 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from ..Poster.Poster import VideoPoster
-from ..Filter.Filter import douyinFilter
+from ..Filter.Filter import videoFilter
 from ..universalTools import tools
 from ..DatabaserOperator import databaseOperator as dbOp
-from globalTools import douyinCrack
+import packageDIY.globalTools.douyinCrack as douyinCrack
+# from globalTools import douyinCrack
 
 # 已有图片链接下载图片的方法
 def downVideo(urlpath, name, dstDirPath):
     print("下载： ", urlpath)
-    r = requests.get(urlpath, verify=False)
+    r = requests.get(urlpath, verify=False, timeout=30)
     video = r.content       #响应的二进制文件
     with open(dstDirPath + str(name) + '.mp4','wb') as f:     #二进制写入
         f.write(video)
@@ -24,9 +25,9 @@ def downVideo(urlpath, name, dstDirPath):
 # --------------------------- 爬取抖音视频的类 ----------------------------------
 
 class crawler_Douyin:
-    def __init__(self, captchaPath, videoDirPath, chromeDriverPath=r'E:\Projects\webDriver\\chrome\\chromedriver.exe'):
+    def __init__(self, captchaPath, videoDirPath,chromeDriverPath=r'C:\Users\Administrator\Desktop\environment_Venv\webDriver\chrome\chromedriver.exe'):
         self.dboperator = dbOp.dbOperator(databaseName='postedurldatabase')
-        self.filter = douyinFilter(dirOriPath=videoDirPath)
+        self.filter = videoFilter(dirOriPath=videoDirPath)
 
         option = webdriver.ChromeOptions()
         option.add_experimental_option('excludeSwitches', ['enable-automation'])
@@ -65,12 +66,12 @@ class crawler_Douyin:
         # 等待某个元素是否出现
         WebDriverWait(self.browser0, 10).until(
             # EC.text_to_be_present_in_element((By.XPATH, ''))
-            EC.presence_of_element_located((By.XPATH, "//ul[@class='_3636d166d0756b63d5645bcd4b9bcac4-scss']"))
+            EC.presence_of_element_located((By.XPATH, "//ul[@class='fbe2b2b02040793723b452dc2de2b770-scss _924e252b5702097b657541b9e3b21448-scss']"))
         )
         self.handleSlideCheck()
         # 这里获取的ul用于判断
         try:
-            ul = self.browser0.find_element_by_xpath("//ul[@class='_3636d166d0756b63d5645bcd4b9bcac4-scss']")
+            ul = self.browser0.find_element_by_xpath("//ul[@class='fbe2b2b02040793723b452dc2de2b770-scss _924e252b5702097b657541b9e3b21448-scss']")
             liList = ul.find_elements_by_xpath("./li")
         except Exception as e:
             # 滑块验证
@@ -100,7 +101,7 @@ class crawler_Douyin:
                         self.handleSlideCheck()
                         continue
                     try:
-                        publishTime = li.find_element_by_xpath(".//span[@class='b32855717201aaabd3d83c162315ff0a-scss']").text
+                        publishTime = li.find_element_by_xpath(".//span[@class='b32855717201aaabd3d83c162315ff0a-scss _5b7c9df52185835724fdb7f876969abd-scss']").text
                         timeLength = li.find_element_by_xpath(".//span[@class='d170ababc38fdbf760ca677dbaa9206a-scss']")
                     except Exception as e:
                         # 滑块验证
@@ -131,7 +132,7 @@ class crawler_Douyin:
             # 向下滚动
             self.moveToBottom(move2BottomTimes)
 
-            ul = self.browser0.find_element_by_xpath("//ul[@class='_3636d166d0756b63d5645bcd4b9bcac4-scss']")
+            ul = self.browser0.find_element_by_xpath("//ul[@class='fbe2b2b02040793723b452dc2de2b770-scss _924e252b5702097b657541b9e3b21448-scss']")
             liList = ul.find_elements_by_xpath("./li")
             self.liList = liList
             for li in liList:
@@ -141,7 +142,7 @@ class crawler_Douyin:
                 except Exception as e:
                     continue
                 timeLength = li.find_element_by_xpath(".//span[@class='d170ababc38fdbf760ca677dbaa9206a-scss']").text
-                publishTime = li.find_element_by_xpath(".//span[@class='b32855717201aaabd3d83c162315ff0a-scss']").text
+                publishTime = li.find_element_by_xpath(".//span[@class='b32855717201aaabd3d83c162315ff0a-scss _5b7c9df52185835724fdb7f876969abd-scss']").text
                 title = a.text
                 videoPageUrl = a.get_attribute("href")
                 print('timeLength: ', timeLength)
@@ -172,7 +173,7 @@ class crawler_Douyin:
 
     def getRealVideo(self, videoList_, videoDirPath, coverSavedPath):
         poster = VideoPoster(videoDirPath=videoDirPath, coverSavedPath=coverSavedPath)
-        filter_video = douyinFilter(dirOriPath=videoDirPath)
+        filter_video = videoFilter(dirOriPath=videoDirPath)
         if (videoList_):
             videoList = self.filter.filter_posted(videoList_) # 过滤掉上传过的视频
             videoList = tools.cleanRepeated(videoList)  # 去重

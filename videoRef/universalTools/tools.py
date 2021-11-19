@@ -440,7 +440,7 @@ def getCidBySelenium(browser, url):
 # 下载视频
 def downVideo(urlpath, name, dstDirPath, headers_):
     # 获取当前日期
-    r = requests.get(urlpath, verify=False, headers=headers_)
+    r = requests.get(urlpath, verify=False, headers=headers_, timeout=30)
     video = r.content       #响应的二进制文件
     with open(dstDirPath + str(name) + '.mp4','wb') as f:     #二进制写入
         f.write(video)

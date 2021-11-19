@@ -75,7 +75,7 @@ def run(proj_absPath, oriDomain, database, tableNameList):
         # dirOriPath=setting['imgsReconizedDir']
         dirOriPath = setting['imgsCrawledDir']
     )
-    filter.run()    # 这里再做一下优化
+    filter.run_()    # 这里再做一下优化
     print("过滤操作完成")
 
     # 4 将过滤后的图片整成缩略图
