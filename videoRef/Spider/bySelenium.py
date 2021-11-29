@@ -1,3 +1,5 @@
+import time
+
 from selenium import webdriver
 from time import sleep
 import requests
@@ -25,7 +27,7 @@ def downVideo(urlpath, name, dstDirPath):
 # --------------------------- 爬取抖音视频的类 ----------------------------------
 
 class crawler_Douyin:
-    def __init__(self, captchaPath, videoDirPath,chromeDriverPath=r'C:\Users\Administrator\Desktop\environment_Venv\webDriver\chrome\chromedriver.exe'):
+    def __init__(self, captchaPath, videoDirPath,chromeDriverPath=r'E:\Projects\webDriver\chrome\chromedriver.exe'):
         self.dboperator = dbOp.dbOperator(databaseName='postedurldatabase')
         self.filter = videoFilter(dirOriPath=videoDirPath)
 
@@ -199,15 +201,22 @@ class crawler_Douyin:
                 self.handleSlideCheck()
 
                 # 获取发布时间，判断发布时间是否是当天，是的话才进行下一步操作，不是的话跳出循环进入下一个循环
-                pubTime = self.browser1.find_element_by_xpath("//span[@class='_87bab22a14dd86d6a0038ee4b3fdaea4-scss']").text.split("：")[1]
+                pubTime = self.browser1.find_element_by_xpath("//span[@class='h7qyKhTd']").text.split("：")[1]
                 pubTime = "".join(pubTime.split("-"))
                 if(pubTime!=tools.getCurDate()):
                     # 判断不是当天的视频则跳过
                     continue
                 # 获取准确的可下载的视频链接
-
-                videoUrl = self.browser1.find_element_by_xpath("//video//source").get_attribute("src")
-
+                try:
+                    videoUrl = self.browser1.find_element_by_xpath("//video//source").get_attribute("src")
+                except Exception as e:
+                    print('拿不到链接')
+                    time.sleep(1)
+                    try:
+                        videoUrl = self.browser1.find_element_by_xpath("//video//source").get_attribute("src")
+                    except Exception as e:
+                        continue
+                    
                 downVideo(urlpath=videoUrl, name=str(i), dstDirPath=videoDirPath)
                 # 上传
                 print("上传视频: ", i)

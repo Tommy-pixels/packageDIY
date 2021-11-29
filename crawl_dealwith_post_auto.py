@@ -16,6 +16,7 @@ from . import run_auto_comment as rac
 from . import run_auto_selenium as ras
 from .articlesRef.DatabaserOperator import databaseOperator as dbOp
 from . import run_auto_video as rav
+from .spider_selenium import spider_sougou
 
 # 1. 定时任务基类 (完成)
 class TimedTaskBasic():
@@ -113,9 +114,17 @@ class TimedTask4Spider(TimedTaskBasic):
             "excuteDelta": 3600  # 间隔1h 也就是说一天执行一次
         }
         '''
-        # 通过os改变工作路径,注意路径是绝对路径，而且还要是\\  只要环境是同一个 这样可以执行对应的爬虫项目
-        os.chdir(self.setting['spiderPath'])
-        subprocess.Popen(self.setting['command'])
+
+        if (self.setting['tasktype'] == 'scrapy'):
+            # 通过os改变工作路径,注意路径是绝对路径，而且还要是\\  只要环境是同一个 这样可以执行对应的爬虫项目
+            os.chdir(self.setting['spiderPath'])
+            subprocess.Popen(self.setting['command'])
+        elif (self.setting['tasktype'] == 'selenium'):
+
+            spider_sougou.spider_sougou(self.setting["origin"])
+
+        else:
+            print('tasktype参数出错')
 
 
 # 结束线程的类没有用到
