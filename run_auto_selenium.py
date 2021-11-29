@@ -18,7 +18,9 @@ def run_douyin(proj_absPath, crawlUrl_list, oriDomain='douyin'):
     spider_douyin = bySelenium.crawler_Douyin(captchaPath=captchaPath, videoDirPath=videoDirPath)
     for url in crawlUrl_list:
         lis = spider_douyin.enterIndexDouyin(move2BottomTimes=1, douyinUrlIndex=url)
-        postResult = spider_douyin.getRealVideo(lis, videoDirPath, coverSavedPath)
+        print("可上传的视频数量：", len(lis))
+        print("可上传的视频：", lis)
+        spider_douyin.getRealVideo(lis, videoDirPath, coverSavedPath)
     spider_douyin.browser0.close()
     spider_douyin.browser1.close()
     globalTools.finishTask()

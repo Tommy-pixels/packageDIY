@@ -13,7 +13,7 @@ from ..Filter.Filter import videoFilter
 from ..universalTools import tools
 from ..DatabaserOperator import databaseOperator as dbOp
 import packageDIY.globalTools.douyinCrack as douyinCrack
-# from globalTools import douyinCrack
+from ..Filter.Cleaner import Cleaner_Title
 
 # 已有图片链接下载图片的方法
 def downVideo(urlpath, name, dstDirPath):
@@ -118,7 +118,8 @@ class crawler_Douyin:
                         min = timeLength.split(":")[0].lstrip('0')
                     else:
                         min = '0'
-                    if (int(min) > 2 and int(min) < 5):
+
+                    if (int(min) >= 1 and int(min) <= 6):
                         liEffectiveList.append((title, videoPageUrl, publishTime))
                     else:
                         continue
@@ -152,7 +153,8 @@ class crawler_Douyin:
                     min = timeLength.split(":")[0].lstrip('0')
                 else:
                     min = '0'
-                if (int(min) >= 2 and int(min) <= 5):
+
+                if (int(min) >= 1 and int(min) <= 6):
                     liEffectiveList.append((title, videoPageUrl, publishTime))
                 else:
                     continue
@@ -190,7 +192,9 @@ class crawler_Douyin:
             return None
         i = 1
         if(videoList!=''):
+            print('当前可上传的视频数量： ', len(videoList))
             for item in videoList:
+                print("当前处理的视频链接： ", item[1])
                 # 2.通过浏览器向服务器发送URL请求
                 self.browser1.get(item[1])
                 # 滑块验证
@@ -213,18 +217,27 @@ class crawler_Douyin:
                     print('拿不到链接')
                     time.sleep(1)
                     try:
-                        videoUrl = self.browser1.find_element_by_xpath("//video//source").get_attribute("src")
+                        videoUrl = self.browser1.find_element_by_xpath("//video//source")
+                        if(len(videoUrl)>1):
+                            videoUrl = videoUrl[0].get_attribute("src")
+                        else:
+                            videoUrl = videoUrl.get_attribute("src")
                     except Exception as e:
                         continue
-                    
+
+                # 抖音标题删除标签
+                title = Cleaner_Title.clean_douyin(title=item[0])
+                if (title.replace(' ', '') == ''):
+                    continue
                 downVideo(urlpath=videoUrl, name=str(i), dstDirPath=videoDirPath)
+
                 # 上传
                 print("上传视频: ", i)
-                poster.post_videoSingle(str(i) + '.mp4', title0=item[0])
+                poster.post_videoSingle(str(i) + '.mp4', title0=title)
 
                 # 更新上传过的数据库 postedurldatabase
                 sql = "INSERT INTO `postedurldatabase`.`tb_video_posted` (`title`) VALUES ('{}');".format(
-                    item[0]
+                    title
                 )
                 self.dboperator.insertData2DB(sql=sql)
                 i = i + 1

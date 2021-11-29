@@ -125,7 +125,7 @@ class videoFilter():
         timeLength = self.checker.get_file_times(videoPath)
         if('分钟' in timeLength):
             t = int(timeLength.split('分钟')[0])
-            if(t>=2 and t<=5):
+            if(t>=1 and t<=6):
                 # print(timeLength)
                 return True
             else:
