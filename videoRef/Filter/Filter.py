@@ -96,6 +96,7 @@ class videoFilter():
         self.filterwordList.append(month + '-' + str(translate(int(day) - 1)))
         self.filterwordList.append(month + '月' + day)
         self.filterwordList.append(month + '/' + day)
+        self.filterwordList.append(month + '/' + str(int(day)))
         self.filterwordList.append(month + '/' + str(translate(int(day) - 1)))
         self.filterwordList.append(day + '日')
         self.filterwordList.append(str(translate(int(day) - 1)) + '日')

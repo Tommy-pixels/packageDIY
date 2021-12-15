@@ -5,7 +5,8 @@ class Cleaner_Title:
         '#财经', '#理财', '#股民','#投资', '#干货分享', '#财经知识', '#创作灵感', '#换手率',
         '#股票', '#主力', '#金融', '#量化', '#量化交易', '#股市', '#上证指数','#投资理财',
         '#芬钛计划', '#知识点总结', '@DOU+小助手', '#期货', '#韭菜', '#中银绒业', '#A股', '#收盘',
-        '#油价', '#一分钟读懂财经'
+        '#油价', '#一分钟读懂财经', '#配资', '#超短线', '#情绪接力', '#我要上头条', '#商业思维', '#股民',
+        '#短线',
     ]
     @classmethod
     def clean_douyin(cls, title):
@@ -20,3 +21,8 @@ class Cleaner_Title:
                 continue
         return title
 
+    @classmethod
+    def clean_douyin_method2(cls, title):
+        if ('#' in title):
+            title = title[:title.index('#')]
+        return title

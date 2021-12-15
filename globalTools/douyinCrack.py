@@ -95,7 +95,7 @@ class DouyinCrack(GetParams_Selenium):
             else:
                 sliderTargetSelector = browser[0].find_element_by_xpath("//img[@id='captcha-verify-image']")  # 背景
                 sliderTemplateSelector = browser[0].find_element_by_xpath("//img[@class='captcha_verify_img_slide react-draggable sc-VigVT ggNWOG']")  # 滑块
-
+            print("出现滑块，下载识别滑块")
 
             targetImgUrl = sliderTargetSelector.get_attribute('src')    # 背景图url
             templateImgUrl = sliderTemplateSelector.get_attribute('src')    # 滑块url
@@ -107,7 +107,7 @@ class DouyinCrack(GetParams_Selenium):
             self.downloader.download_img(targetImgUrl, 'target', dstDirPath)
             return targetWidth
         except Exception as e:
-            print("无滑块出现，下载失败请刷新浏览器重新操作")
+            # print("无滑块出现，下载失败请刷新浏览器重新操作")
             return ''
 
     def move_sliderTemplate(self, movement, *browser):

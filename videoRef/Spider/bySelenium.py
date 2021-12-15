@@ -148,7 +148,6 @@ class crawler_Douyin:
                 publishTime = li.find_element_by_xpath(".//span[@class='b32855717201aaabd3d83c162315ff0a-scss _5b7c9df52185835724fdb7f876969abd-scss']").text
                 title = a.text
                 videoPageUrl = a.get_attribute("href")
-                print('timeLength: ', timeLength)
                 if(timeLength.split(":")[0].startswith('0') and timeLength.split(":")[0].replace('0','')!=''):
                     min = timeLength.split(":")[0].lstrip('0')
                 else:
@@ -167,12 +166,13 @@ class crawler_Douyin:
         try:
             self.EffectiveCookies0 = self.douyinCracker0.handle_SlideCheck(self.browser0)
         except Exception as e:
-            print("browser0 无滑块出现")
-
+            # print("browser0 无滑块出现")
+            pass
         try:
             self.EffectiveCookies1 = self.douyinCracker1.handle_SlideCheck(self.browser1)
         except Exception as e:
-            print("browser1 无滑块出现")
+            # print("browser1 无滑块出现")
+            pass
 
 
     def getRealVideo(self, videoList_, videoDirPath, coverSavedPath):
@@ -207,6 +207,7 @@ class crawler_Douyin:
                 # 获取发布时间，判断发布时间是否是当天，是的话才进行下一步操作，不是的话跳出循环进入下一个循环
                 pubTime = self.browser1.find_element_by_xpath("//span[@class='h7qyKhTd']").text.split("：")[1]
                 pubTime = "".join(pubTime.split("-"))
+
                 if(pubTime!=tools.getCurDate()):
                     # 判断不是当天的视频则跳过
                     continue
@@ -226,18 +227,17 @@ class crawler_Douyin:
                         continue
 
                 # 抖音标题删除标签
-                title = Cleaner_Title.clean_douyin(title=item[0])
+                title = Cleaner_Title.clean_douyin_method2(title=item[0])
                 if (title.replace(' ', '') == ''):
                     continue
                 downVideo(urlpath=videoUrl, name=str(i), dstDirPath=videoDirPath)
 
                 # 上传
-                print("上传视频: ", i)
-                poster.post_videoSingle(str(i) + '.mp4', title0=title)
-
+                res = poster.post_videoSingle(str(i) + '.mp4', title0=title)
+                print("上传视频: ", i, " 上传情况： ", res)
                 # 更新上传过的数据库 postedurldatabase
                 sql = "INSERT INTO `postedurldatabase`.`tb_video_posted` (`title`) VALUES ('{}');".format(
-                    title
+                    item[0]
                 )
                 self.dboperator.insertData2DB(sql=sql)
                 i = i + 1
